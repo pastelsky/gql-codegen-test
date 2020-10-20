@@ -1,0 +1,4880 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+interface AppDeploymentEvent {
+    createdAt: String!
+    stepName: String!
+}
+
+interface DevOpsMetricsCycleTimeMetrics {
+    "Data aggregated according to the metricType specified. Rounded to the nearest second."
+    aggregateData: Long
+    "The cycle time data points, computed using roll up of the type specified in 'metric'. Rolled up by specified resolution."
+    data: [DevOpsMetricsCycleTimeData]
+}
+
+"The data describing a function invocation."
+interface FunctionInvocationMetadata {
+    appVersion: String!
+    "Metadata about the function of the app that was called"
+    function: FunctionDescription
+    "The invocation ID"
+    id: ID!
+    "The context in which the app is installed"
+    installationContext: AppInstallationContext
+    "Metadata about what caused the function to run"
+    trigger: FunctionTrigger
+}
+
+interface LocalizationContext {
+    "The locale of user in RFC5646 format."
+    locale: String
+    "The timezone of the user as defined in the tz database https://www.iana.org/time-zones."
+    zoneinfo: String
+}
+
+"""
+
+A concrete error type that can be returned in response to a failed mutation
+
+This extension carries additional categorisation information about the error
+"""
+interface MutationErrorExtension {
+    "Application specific error trace"
+    errorType: String
+    "A numerical code (as a HTTP status code) representing the error category"
+    statusCode: Int
+}
+
+"""
+
+A mutation response interface.
+
+According to the Atlassian stansdards, all mutations should return a type which implements this interface.
+
+[Apollo GraphQL Documentation](https://www.apollographql.com/docs/apollo-server/essentials/schema#mutation-responses)
+"""
+interface MutationResponse {
+    "A message for this mutation"
+    message: String!
+    "A numerical code (as a HTTP status code) representing the status of the mutation"
+    statusCode: Int!
+    "Was this mutation successful"
+    success: Boolean!
+}
+
+interface Node {
+    id: ID!
+}
+
+"The general shape of a mutation response."
+interface Payload {
+    "A list of errors if the mutation was not successful"
+    errors: [MutationError!]
+    "Was this mutation successful"
+    success: Boolean!
+}
+
+"""
+
+An PolarisIdeaField is a unit of information that can be instantiated
+for an PolarisIdea.
+"""
+interface PolarisIdeaField {
+    """
+
+    What is the default sort order?  This is the order you get on
+    "first click" of the column, and also the semantics of "ORDER BY"
+  without an ASC or DESC qualifier.
+    """
+    defaultSortOrder: PolarisSortOrder
+    """
+
+    Are values in this field directly editable?  Some integrations
+    might bring in data that is not directly editable.
+    """
+    editable: Boolean!
+    """
+
+    A short identifier suitable for at least within this project,
+    but only supplied for fields that are returned via an PolarisIdea's fields
+    attribute.  If not present, this field represents a builtin field
+    on PolarisIdea.
+    """
+    fieldId: Int @deprecated(reason : "No longer supported")
+    """
+
+    The name of the field built in to PolarisIdea, if this field represents
+    a builtin field.
+    """
+    fieldName: String @deprecated(reason : "No longer supported")
+    """
+
+    Is this field suitable for grouping operations like Board view?
+    (i.e., may it appear in the groupBy field in a view?)
+    """
+    groupable: Boolean!
+    "The fully qualified globally unique id (ARI) for this field"
+    id: ID!
+    """
+
+    The key of this field in the `fields` structure if it is a Jira
+    field.  Not set for things that don't appear in the fields section
+    of a Jira issue object, such as "key"
+  """
+    jiraFieldKey: String
+    label: String!
+    """
+
+    Is this field suitable for linear operations like plotting on an axis?
+    (i.e., may it appear in the x or y field in a view?)
+    """
+    linearizable: Boolean!
+    """
+
+    Can rows be sorted by this field?  Some fields are not commensurate
+    and hence can't be sorted.
+    """
+    sortable: Boolean!
+}
+
+"""
+
+An PolarisIdeaField is an extensible unit of information (a cell)
+attached to an idea
+"""
+interface PolarisIdeaFieldValue {
+    fieldId: Int!
+    """
+
+    An optional link (url) this field value is associated with.  For
+    example, if MRR appears in a field value, it might link to the
+    source of truth for that value
+    """
+    link: String
+}
+
+interface PolarisVisualization {
+    iconUrl: String!
+}
+
+"""
+
+There are 3 types of accounts :
+
+* AtlassianAccountUser
+* this represents a real person that has an account in a wide range of Atlassian products
+
+* CustomerUser
+* This represents a real person who is a customer of an organisation who uses an Atlassian product to provide service to their customers.
+Currently, this isused within Jira Service Desk for external service desks.
+
+* AppUser
+* this does not represent a real person but rather the identity that backs an installed application
+"""
+interface User {
+    "The account ID for the user."
+    accountId: ID!
+    "The lifecycle status of the account"
+    accountStatus: AccountStatus!
+    """
+
+    The display name of the user. This should be used when rendering a user textually within content.
+    If the user has restricted visibility of their name, their nickname will be
+    displayed as a substitute value.
+    """
+    name: String!
+    """
+
+    The absolute URI (RFC3986) to the avatar name of the user. This should be used when rendering a user graphically within content.
+    If the user has restricted visibility of their avatar or has not set
+    an avatar, an alternative URI will be provided as a substitute value.
+    """
+    picture: URL!
+}
+
+union ActivitiesEventExtension = ActivitiesCommentedEvent | ActivitiesTransitionedEvent
+
+union ActivitiesObjectExtension = ActivitiesJiraIssue
+
+" --------------------------------------- API v2"
+type Activities {
+    """
+
+    get all activity
+    - filters - query filter for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    all(after: String, filters: [ActivitiesFilter!], first: Int): ActivitiesConnection!
+    "get activity for the currently logged in user"
+    myActivities: MyActivities
+    """
+
+    get "Worked on" activity
+    - filters - query filter for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    workedOn(after: String, filters: [ActivitiesFilter!], first: Int): ActivitiesConnection!
+}
+
+"Extension of ActivitiesEvent, is a part of ActivitiesEventExtension union"
+type ActivitiesCommentedEvent {
+    commentId: ID!
+}
+
+type ActivitiesConnection {
+    edges: [ActivityEdge]
+    nodes: [ActivitiesItem!]!
+    pageInfo: ActivityPageInfo!
+}
+
+type ActivitiesContainer {
+    cloudId: String
+    iconUrl: URL
+    "Base64 encoded ARI of container."
+    id: ID!
+    "Local (in product) object ID of the corresponding object."
+    localResourceId: ID
+    name: String
+    product: ActivityProduct
+    type: ActivitiesContainerType
+    url: URL
+}
+
+type ActivitiesContributor {
+    """
+
+    count of contributions for sorting by frequency,
+    all event types that is being ingested, except VIEWED and VIEWED_CONTENT
+    is considered to be a contribution
+    """
+    count: Int
+    lastAccessedDate: DateTime
+    profile: User
+}
+
+type ActivitiesEvent implements Node {
+    eventType: ActivityEventType
+    extension: ActivitiesEventExtension
+    "Unique event ID"
+    id: ID!
+    timestamp: DateTime
+    user: ActivitiesUser
+}
+
+type ActivitiesItem implements Node {
+    "Base64 encoded ARI of the activity."
+    id: ID!
+    object: ActivitiesObject
+    timestamp: DateTime
+}
+
+"Extension of ActivitiesObject, is a part of ActivitiesObjectExtension union"
+type ActivitiesJiraIssue {
+    issueKey: String
+}
+
+type ActivitiesObject implements Node {
+    cloudId: String
+    "Hierarchy of the containers, top container comes first"
+    containers: [ActivitiesContainer!]
+    contributors: [ActivitiesContributor!]
+    events(first: Int): [ActivitiesEvent!]
+    extension: ActivitiesObjectExtension
+    iconUrl: URL
+    "Base64 encoded ARI of the object."
+    id: ID!
+    "Local (in product) object ID of the corresponding object."
+    localResourceId: ID
+    name: String
+    parent: ActivitiesObjectParent
+    product: ActivityProduct
+    type: ActivityObjectType
+    url: URL
+}
+
+type ActivitiesObjectParent {
+    "Base64 encoded ARI of the object."
+    id: ID!
+    type: ActivityObjectType
+}
+
+"Extension of ActivitiesEvent, is a part of ActivitiesEventExtension union"
+type ActivitiesTransitionedEvent {
+    from: String
+    to: String
+}
+
+type ActivitiesUser {
+    profile: User
+}
+
+type ActivityConnection {
+    nodes: [ActivityItem]!
+}
+
+type ActivityContributor {
+    """
+
+    count of contributions for sorting by frequency,
+    all event types that is being ingested, except VIEWED and VIEWED_CONTENT
+    is considered to be a contribution
+    """
+    count: Int
+    "ISO 8601"
+    lastAccessedDate: String
+    profile: ActivityUser
+}
+
+type ActivityEdge {
+    cursor: String!
+    node: ActivitiesItem
+}
+
+type ActivityHistory {
+    actioner: ActivityUser
+    eventType: ActivityEventType
+    "ISO 8601"
+    timestamp: String
+}
+
+type ActivityHistoryConnection {
+    nodes: [ActivityHistory]!
+}
+
+type ActivityItem implements Node {
+    "hierarchy of the containers, top container comes first"
+    containers: [ActivityObject]
+    contributors: [ActivityContributor]
+    eventType: ActivityEventType
+    "Base64 encoded ARI."
+    id: ID!
+    object: ActivityObject
+    "ISO 8601"
+    timestamp: String
+}
+
+type ActivityObject implements Node {
+    cloudID: String
+    history: ActivityHistoryConnection
+    iconURL: String
+    "Base64 encoded ARI."
+    id: ID!
+    "Local (in product) object ID of the corresponding object."
+    localResourceId: ID!
+    "in Jira's case it is: <Issue_key> + \" \" + <Issue_summary>\" "
+    name: String
+    product: ActivityProduct
+    type: ActivityObjectType
+    url: String
+}
+
+type ActivityObjectConnection {
+    nodes: [ActivityObject]!
+}
+
+type ActivityPageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+}
+
+type ActivityUser {
+    accountId: ID!
+    name: String
+    picture: String
+}
+
+type App {
+    description: String!
+    environmentByKey(key: String!): AppEnvironment
+    environments: [AppEnvironment!]!
+    id: ID!
+    name: String!
+}
+
+type AppDeployment {
+    appId: ID!
+    createdAt: String!
+    createdBy: User
+    environmentKey: String!
+    errorDetails: ErrorDetails
+    id: ID!
+    stages: [AppDeploymentStage!]
+    status: AppDeploymentStatus!
+}
+
+type AppDeploymentLogEvent implements AppDeploymentEvent {
+    createdAt: String!
+    level: AppDeploymentEventLogLevel
+    message: String
+    stepName: String!
+}
+
+type AppDeploymentSnapshotLogEvent implements AppDeploymentEvent {
+    createdAt: String!
+    level: AppDeploymentEventLogLevel
+    message: String
+    stepName: String!
+}
+
+type AppDeploymentStage {
+    description: String!
+    events: [AppDeploymentEvent!]
+    key: String!
+    progress: AppDeploymentStageProgress!
+}
+
+type AppDeploymentStageProgress {
+    doneSteps: Int!
+    totalSteps: Int!
+}
+
+type AppDeploymentTransitionEvent implements AppDeploymentEvent {
+    createdAt: String!
+    newStatus: AppDeploymentStepStatus
+    stepName: String!
+}
+
+type AppEnvironment {
+    appId: ID!
+    createdAt: String!
+    createdBy: User
+    id: ID!
+    "A list of installations of the app"
+    installations: [AppInstallation!]!
+    key: String!
+    scopes: [String!]
+    type: AppEnvironmentType!
+    variables: [AppEnvironmentVariable!]!
+}
+
+type AppEnvironmentVariable {
+    "Whether or not to encrypt"
+    encrypt: Boolean!
+    "The key of the environment variable"
+    key: String!
+    "The value of the environment variable"
+    value: String
+}
+
+type AppInstallation {
+    "Time when the app was installed"
+    createdAt: String!
+    "A unique Id representing account that installed the app"
+    createdBy: User
+    "A unique Id representing installation the app into a context in the environment"
+    id: ID!
+    "A unique Id representing the context into which the app is being installed"
+    installationContext: ID!
+    "An object that refers to the version of the installation"
+    version: AppVersion
+}
+
+type AppInstallationContext {
+    id: ID!
+}
+
+"The response from the installation of an app environment"
+type AppInstallationResponse implements MutationResponse {
+    authorizationUrl: URL
+    errorDetails: ErrorDetails
+    installationId: ID
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"The response from the installation upgrade of an app environment"
+type AppInstallationUpgradeResponse implements MutationResponse {
+    authorizationUrl: String
+    errorDetails: ErrorDetails
+    installationId: ID
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type AppLog implements FunctionInvocationMetadata & Node {
+    """
+
+    Gets up to 200 earliest log lines for this invocation.
+    For getting more log lines use appLogLines field in Query type.
+    """
+    appLogLines(first: Int = 100): AppLogLines
+    appVersion: String!
+    function: FunctionDescription
+    id: ID!
+    installationContext: AppInstallationContext
+    """
+
+    The start time of the invocation
+
+    RFC-3339 formatted timestamp.
+    """
+    startTime: String
+    trigger: FunctionTrigger
+}
+
+"Relay-style Connection to `AppLog` objects."
+type AppLogConnection {
+    edges: [AppLogEdge]
+    nodes: [AppLog]
+    pageInfo: PageInfo!
+}
+
+"Relay-style Edge to an `AppLog` object."
+type AppLogEdge {
+    cursor: String!
+    node: AppLog!
+}
+
+type AppLogLine {
+    """
+
+    Log level of log line.  Typically one of:
+    TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+    """
+    level: String
+    "The free-form textual message from the log statement."
+    message: String
+    """
+
+    We really don't know what other fields may be in the logs.
+
+    This field may be an array or an object.
+
+    If it's an object, it will include only fields in `includeFields`,
+    unless `includeFields` is null, in which case it will include
+    all fields that are not in `excludeFields`.
+
+    If it's an array it will include the entire array.
+    """
+    other: JSON
+    """
+
+    Time the log line was issued
+
+    RFC-3339 formatted timestamp
+    """
+    timestamp: String!
+}
+
+"Relay-style Connection to `AppLogLine` objects."
+type AppLogLineConnection {
+    edges: [AppLogLineEdge]
+    "Metadata about the function invocation (applies to all log lines of invocation)"
+    metadata: FunctionInvocationMetadata!
+    nodes: [AppLogLine]
+    pageInfo: PageInfo!
+}
+
+"Relay-style Edge to an `AppLogLine` object."
+type AppLogLineEdge {
+    cursor: String!
+    node: AppLogLine!
+}
+
+"""
+
+AppLogLines returned from AppLog query.
+
+Not quite a Relay-style Connection since you can't page from this query.
+"""
+type AppLogLines {
+    edges: [AppLogLineEdge]
+    nodes: [AppLogLine]
+    pageInfo: PageInfo!
+}
+
+type AppStorageMutation {
+    "Delete an untyped entity in a specific context given a key"
+    deleteAppStoredEntity(input: DeleteAppStoredEntityMutationInput!): DeleteAppStoredEntityPayload
+    "Set an untyped entity in a specific context given a key"
+    setAppStoredEntity(input: SetAppStoredEntityMutationInput!): SetAppStoredEntityPayload
+}
+
+type AppStoredEntity {
+    """
+
+    The identifier for this entity
+
+    Keys must be between 1-100 characters long and must match the following pattern /^[a-zA-Z0-9:._\s-]+$/
+    """
+    key: ID!
+    """
+
+    Entities may be up to 2000 bytes long. Note that size within ESS may differ from
+    the size of the entity sent to this service. The entity size is counted within this service.
+    """
+    value: JSON
+}
+
+type AppStoredEntityConnection {
+    "The AppStoredEntityConnection is a paginated list of Entities from storage service"
+    edges: [AppStoredEntityEdge]
+    "nodes field allows easy access for the first N data items"
+    nodes: [AppStoredEntity]
+    "pageInfo determines whether there are more entries to query."
+    pageInfo: AppStoredEntityPageInfo
+    "totalCount is the number of records retrived on a query."
+    totalCount: Int
+}
+
+type AppStoredEntityEdge {
+    """
+
+    Edge is a combination of node and cursor and follows the relay specs.
+
+    Cursor returns the key of the last record that was queried and
+    should be used as input to after when querying for paginated entities
+    """
+    cursor: String!
+    node: AppStoredEntity
+}
+
+type AppStoredEntityPageInfo {
+    "The pageInfo is the place to allow code to navigate the paginated list."
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+}
+
+"The response of the uninstallation of an app environment"
+type AppUninstallationResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"""
+
+This does not represent a real person but rather the identity that backs an installed application
+
+See the documentation on the `User` for more details
+"""
+type AppUser implements User {
+    accountId: ID!
+    accountStatus: AccountStatus!
+    name: String!
+    picture: URL!
+}
+
+type AppVersion {
+    "A boolean value that informs if the version installed is the latest"
+    isLatest: Boolean!
+}
+
+"""
+
+This represents a real person that has an account in a wide range of Atlassian products
+
+See the documentation on the `User` and `LocalizationContext` for more details
+"""
+type AtlassianAccountUser implements LocalizationContext & User {
+    accountId: ID!
+    accountStatus: AccountStatus!
+    email: String
+    locale: String
+    name: String!
+    picture: URL!
+    zoneinfo: String
+}
+
+"This type contains information about the currently logged in user"
+type AuthenticationContext {
+    "Information about the currently logged in user."
+    user: User
+}
+
+"A response to an aux invocation"
+type AuxEffectsResult {
+    """
+
+    The list of effects in response to an aux effects invocation.
+
+    Render effects should return valid rendering effects to the invoker,
+    to allow the front-end to render the required content. These are kept as
+    generic JSON blobs since consumers of this API are responsible for defining
+    what these effects look like.
+    """
+    effects: [JSON!]!
+}
+
+type AvailableEstimations {
+    "Name of the estimation."
+    name: String!
+    "Unique identifier of the estimation. Temporary naming until we remove \"statistic\" from Jira."
+    statisticFieldId: String!
+}
+
+type Backlog {
+    "List of the assignees of all cards currently displayed on the backlog"
+    assignees: [User]
+    """
+
+    Temporarily needed to support legacy write API_.  the issue list key to use when creating issue's on the board.
+    Required when creating issues on a board with backlogs
+    """
+    boardIssueListKey: String
+    "List of card types which can be created directly on the backlog or sprints"
+    cardTypes: [CardType]!
+    cards(cardIds: [ID]): [SoftwareCard]!
+    "connect add-ons information"
+    extension: BacklogExtension
+    "Labels for filtering and adding to cards"
+    labels: [String]!
+    "Whether or not to show the 'migrate this column to your backlog' prompt (set when first enabling backlogs)"
+    requestColumnMigration: Boolean!
+}
+
+type BacklogExtension {
+    "list of operations that add-on can perform"
+    operations: [SoftwareOperation]
+}
+
+type BitbucketQuery {
+    "Look up the Bitbucket repository by ARI"
+    bitbucketRepository(id: ID!): BitbucketRepository
+}
+
+type BitbucketRepository implements Node {
+    "The Bitbucket avatar."
+    avatar: BitbucketRepositoryAvatar
+    "The ARI of the Bitbucket repository."
+    id: ID!
+    "Name of Bitbucket repository."
+    name: String!
+    "URI for accessing Bitbucket repository."
+    webUrl: URL!
+}
+
+type BitbucketRepositoryAvatar {
+    "URI for retrieving Bitbucket avatar."
+    url: URL!
+}
+
+type BoardFeature {
+    category: String!
+    key: SoftwareBoardFeatureKey
+    prerequisites: [BoardFeature]
+    status: BoardFeatureStatus
+    toggle: BoardFeatureToggleStatus
+}
+
+"Root node for queries about simple / agility / nextgen boards."
+type BoardScope {
+    "Null if there's no backlog"
+    backlog: Backlog
+    board: SoftwareBoard
+    "Card parents (AKA Epics) for filtering and adding to cards"
+    cardParents: [CardParent]!
+    "Cards in the board scope with given card IDs"
+    cards(cardIds: [ID]!): [SoftwareCard]!
+    "Information about the user making this request."
+    currentUser: CurrentUser!
+    "Estimation type currently configured for the board."
+    estimation: EstimationConfig
+    "List of all features on the board, and their state."
+    features: [BoardFeature]!
+    "The project location for this board scope"
+    projectLocation: SoftwareProject!
+    "List of reports on this board.  null if reports are not enabled on this board."
+    reports: SoftwareReports
+    "Null if sprints are disabled (empty if there are no sprints)"
+    sprints(state: [SprintState]): [Sprint]
+    "Current user's swimlane-strategy, NONE if SWAG was unable to retrieve it"
+    userSwimlaneStrategy: SwimlaneStrategy
+}
+
+"Burndown chart focuses on remaining scope over time"
+type BurndownChart {
+    "Burndown charts are graphing the remaining over time"
+    chart(estimation: SprintReportsEstimationStatisticType, sprintId: ID): BurndownChartData!
+    "Filters for the report"
+    filters: SprintReportsFilters!
+}
+
+type BurndownChartData {
+    "the set end time of the sprint, not when the sprint completed"
+    endTime: DateTime
+    """
+
+    data for a sprint scope change
+    each point are assumed to be scope change during a sprint
+    """
+    scopeChangeEvents: [SprintScopeChangeData]!
+    """
+
+    data for sprint end event
+    can be null if sprint has not been completed yet
+    """
+    sprintEndEvent: SprintEndData
+    "data for sprint start event"
+    sprintStartEvent: SprintStartData!
+    "the start time of the sprint"
+    startTime: DateTime
+    "data for the table"
+    table: BurndownChartDataTable
+    "the current user's timezone"
+    timeZone: String
+}
+
+type BurndownChartDataTable {
+    completedIssues: [BurndownChartDataTableIssueRow]!
+    completedIssuesOutsideOfSprint: [BurndownChartDataTableIssueRow]!
+    incompleteIssues: [BurndownChartDataTableIssueRow]!
+    issuesRemovedFromSprint: [BurndownChartDataTableIssueRow]!
+    scopeChanges: [BurndownChartDataTableScopeChangeRow]!
+}
+
+type BurndownChartDataTableIssueRow {
+    assignee: User
+    cardParent: CardParent
+    cardStatus: CardStatus
+    cardType: CardType
+    estimate: Float
+    issueKey: String!
+    issueSummary: String!
+}
+
+type BurndownChartDataTableScopeChangeRow {
+    cardParent: CardParent
+    cardType: CardType
+    sprintScopeChange: SprintScopeChangeData!
+    timestamp: DateTime!
+}
+
+"""
+
+Report pagination
+-----------------
+"""
+type CFDChartConnection {
+    edges: [CFDChartEdge]!
+    pageInfo: PageInfo!
+}
+
+"""
+
+Report data
+-----------------
+"""
+type CFDChartData {
+    changes: [CFDIssueColumnChangeEntry]!
+    columnCounts: [CFDColumnCount]!
+    timestamp: DateTime!
+}
+
+type CFDChartEdge {
+    cursor: String!
+    node: CFDChartData!
+}
+
+type CFDColumn {
+    name: String!
+}
+
+type CFDColumnCount {
+    columnIndex: Int!
+    count: Int!
+}
+
+"""
+
+Report filters
+--------------
+"""
+type CFDFilters {
+    columns: [CFDColumn]!
+}
+
+type CFDIssueColumnChangeEntry {
+    columnFrom: Int
+    columnTo: Int
+    key: ID
+    point: TimeSeriesPoint
+    statusTo: ID
+    "in ISO 8601 format"
+    timestamp: String!
+}
+
+type CardCoverMedia {
+    attachmentId: Long
+    attachmentMediaApiId: ID
+    clientId: String
+    "endpoint to retrieve the media from"
+    endpointUrl: String
+    "true if this card has media, but it's explicity been hidden by the user"
+    hiddenByUser: Boolean!
+    token: String
+}
+
+type CardMediaConfig {
+    "Whether or not to show card media on this board"
+    enabled: Boolean!
+}
+
+type CardParent {
+    "Card type"
+    cardType: CardType!
+    "The color for this card"
+    color: CardPaletteColor
+    "Card id"
+    id: ID!
+    "Card key"
+    key: String!
+    "Card summary"
+    summary: String!
+}
+
+type CardPriority {
+    iconUrl: String
+    name: String
+}
+
+type CardStatus {
+    "Which status category this statue belongs to.  Values:  \"undefined\" | \"new\" (ie todo) | \"indeterminate\" (aka \"in progress\") | \"done\""
+    category: String
+    "Card status id"
+    id: ID
+    "Card status name"
+    name: String
+}
+
+type CardType {
+    "The type of hierarchy level that card type belongs to"
+    hierarchyLevelType: CardTypeHierarchyLevelType
+    "URL to the icon to show for this card type"
+    iconUrl: String
+    id: ID
+    "The configuration for creating cards with this type inline."
+    inlineCardCreate: InlineCardCreateConfig
+    name: String
+}
+
+type ChangePolarisIdeaPayload implements Payload {
+    errors: [MutationError!]
+    node: PolarisIdea
+    success: Boolean!
+}
+
+type ChangePolarisIdeaRankPayload {
+    errors: [MutationError!]
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Children metadata for cards"
+type ChildCardsMetadata {
+    complete: Int
+    total: Int
+}
+
+type CodeInJira {
+    "Site specific configuration required to build the 'Code in Jira' page"
+    siteConfiguration: CodeInJiraSiteConfiguration
+    "User specific configuration required to build the 'Code in Jira' page"
+    userConfiguration: CodeInJiraUserConfiguration
+}
+
+type CodeInJiraBitbucketWorkspace {
+    "Workspace name (eg. Fusion)"
+    name: String
+    """
+
+    URL slug (eg. fusion). Used to differentiate multiple workspaces
+    to the user when the names are same
+    """
+    slug: String
+    "Unique ID of the Bitbucket workspace in UUID format"
+    uuid: ID!
+}
+
+type CodeInJiraSiteConfiguration {
+    """
+
+    A list of providers that are already connected to the site
+    Eg. Bitbucket, Github, Gitlab etc.
+    """
+    connectedVcsProviders: [CodeInJiraVcsProvider]
+}
+
+type CodeInJiraUserConfiguration {
+    """
+
+    A list of Bitbucket workspaces that the current user has admin access too
+    The user can connect Jira to one these Workspaces
+    """
+    ownedBitbucketWorkspaces: [CodeInJiraBitbucketWorkspace]
+}
+
+"""
+
+A Version Control System object
+Eg. Bitbucket, GitHub, GitLab
+"""
+type CodeInJiraVcsProvider {
+    id: ID!
+    name: String
+    providerId: String
+    providerNamespace: String
+}
+
+"A column on the board"
+type Column {
+    "The cards contained in the column"
+    cards: [SoftwareCard]!
+    "The statuses mapped to this column"
+    columnStatus: [ColumnStatus!]!
+    "Column's id"
+    id: ID
+    "Whether this column is the done column.  Each board has exactly one done column."
+    isDone: Boolean!
+    "Whether this column is the inital column.  Each board has exactly one initial column."
+    isInitial: Boolean!
+    "Number of cards allowed in this column before displaying a warning,  null if no limit"
+    maxCardCount: Int
+    "Column's name"
+    name: String
+}
+
+"Represents a column inside a swimlane.  Each swimlane gets a ColumnInSwimlane for each column."
+type ColumnInSwimlane {
+    "The cards contained in this column in the given swimlane"
+    cards(cardIds: [ID]): [SoftwareCard]!
+    "The details of the column"
+    columnDetails: Column
+}
+
+"A status associated with a column, along with its transitions"
+type ColumnStatus {
+    "The status"
+    status: CardStatus!
+    "Possible transitions into this status"
+    transitions: [SoftwareCardTransition!]!
+}
+
+type CompleteSprintResponse implements MutationResponse {
+    boardScope: BoardScope
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Response from creating a deployment"
+type CreateAppDeploymentResponse implements MutationResponse {
+    "Details about the created deployment"
+    deployment: AppDeployment
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Response from creating an app deployment url"
+type CreateAppDeploymentUrlResponse implements MutationResponse {
+    deploymentUrl: String
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Response from creating an app"
+type CreateAppResponse implements MutationResponse {
+    "Details about the created app"
+    app: App
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"A response to a tunnel creation request"
+type CreateAppTunnelResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    """
+
+    The actual expiry time (in milliseconds) of the created forge tunnel. Once the
+    tunnel expires, Forge apps will display the deployed version even
+    if the local development server is still active.
+    """
+    expiry: String
+    """
+
+    The recommended keep-alive time (in milliseconds) by which the forge CLI (or
+    other clients) should re-establish the forge tunnel.
+    This is guaranteed to be less than the expiry of the forge tunnel.
+    """
+    keepAlive: String
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type CreateColumnOutput implements MutationResponse {
+    columns: [Column!]
+    message: String!
+    newColumn: Column
+    statusCode: Int!
+    success: Boolean!
+}
+
+type CreateContainerTokenResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+    token: String
+}
+
+"Response from creating a hosted resource upload url"
+type CreateHostedResourceUploadUrlPayload implements Payload {
+    errors: [MutationError!]
+    preSignedUrls: [HostedResourcePreSignedUrl!]
+    success: Boolean!
+    uploadId: ID!
+}
+
+type CreatePolarisIdeaPayload implements Payload {
+    errors: [MutationError!]
+    node: PolarisIdea
+    success: Boolean!
+}
+
+"#### Payload #####"
+type CreatePolarisViewPayload {
+    errors: [MutationError!]
+    node: PolarisView
+    success: Boolean!
+}
+
+type CreateSprintResponse implements MutationResponse {
+    message: String!
+    sprint: CreatedSprint
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Response from creating an webtrigger url"
+type CreateWebTriggerUrlResponse implements MutationResponse {
+    "Id of the webtrigger. Populated only if success is true."
+    id: ID
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+    "Url of the webtrigger. Populated only if success is true."
+    url: URL
+}
+
+type CreatedSprint {
+    "Can this sprint be update by the current user"
+    canUpdateSprint: Boolean
+    "The number of days remaining"
+    daysRemaining: Int
+    "The end date of the sprint, in ISO 8601 format"
+    endDate: DateTime
+    "The ID of the sprint"
+    id: ID!
+    "The sprint's name"
+    name: String
+    "The state of the sprint, can be one of the following (FUTURE, ACTIVE, CLOSED)"
+    sprintState: SprintState
+    "The start date of the sprint, in ISO 8601 format"
+    startDate: DateTime
+}
+
+"Node for querying the Cumulative Flow Diagram report"
+type CumulativeFlowDiagram {
+    chart(cursor: String, first: Int): CFDChartConnection!
+    filters: CFDFilters!
+}
+
+type CurrentEstimation {
+    "Custom field configured as the estimation type. Null when estimation feature is disabled."
+    customFieldId: String
+    "Name of the custom field."
+    name: String
+}
+
+"Information about the current user. Different users will see different results."
+type CurrentUser {
+    "List of permissions the *user making the request* has for this board."
+    permissions: [SoftwareBoardPermission]!
+}
+
+"""
+
+This represents a real person that has an free account within the Jira Service Desk product
+
+See the documentation on the `User` and `LocalizationContext` for more details
+"""
+type CustomerUser implements LocalizationContext & User {
+    accountId: ID!
+    accountStatus: AccountStatus!
+    email: String
+    locale: String
+    name: String!
+    picture: URL!
+    zoneinfo: String
+}
+
+"Response from deleting an app"
+type DeleteAppResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Generic implementation of MutationResponse for responses that don't need any extra data"
+type DeleteAppStoredEntityPayload implements Payload {
+    errors: [MutationError!]
+    success: Boolean!
+}
+
+type DeleteColumnOutput implements MutationResponse {
+    columns: [Column!]
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type DeletePolarisViewPayload {
+    errors: [MutationError!]
+    success: Boolean!
+}
+
+"Response from creating an webtrigger url"
+type DeleteWebTriggerUrlResponse implements MutationResponse {
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"""
+
+This object models the Continuous Delivery (CD) Pipeline concept, an automated process (usually comprised of multiple stages)
+for getting software from version control right through to the production environment.
+"""
+type DeploymentPipeline {
+    "The name of the pipeline to present to the user."
+    displayName: String
+    "A URL users can use to link to this deployment pipeline."
+    url: String
+}
+
+"""
+
+This object models a deployment in the Continuous Delivery (CD) Pipeline concept, an automated process (usually comprised of
+multiple stages) for getting software from version control right through to the production environment.
+
+TODO: Add `services` field when Service Registry has been integrated into AGG.
+"""
+type DeploymentSummary implements Node {
+    """
+
+    This is the identifier for the deployment.
+
+    It must be unique for the specified pipeline and environment. It must be a monotonically
+    increasing number, as this is used to sequence the deployments.
+    """
+    deploymentSequenceNumber: Long
+    "A short description of the deployment."
+    description: String
+    "The human-readable name for the deployment. Will be shown in the UI."
+    displayName: String
+    "The environment that the deployment is present in."
+    environment: DevOpsEnvironment
+    id: ID!
+    """
+
+    IDs of the issues that are included in the deployment.
+
+    At least one of the commits in the deployment must be associated with an issue for it
+    to appear here (meaning the issue key is mentioned in the commit message).
+    """
+    issueIds: [ID!]
+    "The last-updated timestamp to present to the user as a summary of the state of the deployment."
+    lastUpdated: DateTime
+    """
+
+    This object models the Continuous Delivery (CD) Pipeline concept, an automated process
+    (usually comprised of multiple stages) for getting software from version control right through
+    to the production environment.
+    """
+    pipeline: DeploymentPipeline
+    "The state of the deployment."
+    state: DeploymentState
+    """
+
+    A number used to apply an order to the updates to the deployment, as identified by the
+    `deploymentSequenceNumber`, in the case of out-of-order receipt of update requests.
+
+    It must be a monotonically increasing number. For example, epoch time could be one
+    way to generate the `updateSequenceNumber`.
+    """
+    updateSequenceNumber: Long
+    "A URL users can use to link to this deployment, in this environment."
+    url: String
+}
+
+type DevOpsAvatar {
+    "The description of the avatar."
+    description: String
+    "The URL of the avatar."
+    url: URL
+}
+
+"""
+
+An environment that a code change can be released to.
+
+The release may be via a code deployment or via a feature flag change.
+"""
+type DevOpsEnvironment {
+    "The type of the environment."
+    category: DevOpsEnvironmentCategory
+    "The name of the environment to present to the user."
+    displayName: String
+}
+
+type DevOpsMetrics {
+    cycleTime(
+        "Use to specify list of percentile metrics to compute and return results for. Max limit of 5. Values need to be between 0 and 100."
+        cycleTimePercentiles: [Int!],
+        "Criteria for filtering the data used in metric calculation."
+        filter: DevOpsMetricsFilterInput!,
+        "Whether to include 'mean' cycle time as one of the returned metrics."
+        isIncludeCycleTimeMean: Boolean
+    ): DevOpsMetricsCycleTime
+    deploymentFrequency(
+        "Criteria for filtering the data used in metric calculation."
+        filter: DevOpsMetricsFilterInput!
+    ): DevOpsMetricsDeploymentFrequency
+}
+
+type DevOpsMetricsCycleTime {
+    "List of cycle time metrics for each requested roll up metric type."
+    cycleTimeMetrics: [DevOpsMetricsCycleTimeMetrics]
+    "The development phase which the cycle time is calculated for."
+    phase: DevOpsMetricsCycleTimePhase
+    """
+
+    The size of time interval in which data points are rolled up in.
+    E.g. Count of data over 2 weeks with 1 day resolution means rollup is number of datapoints per day over 2 weeks.
+    """
+    resolution: DevOpsMetricsResolution
+}
+
+type DevOpsMetricsCycleTimeData {
+    "Rolled up cycle time data (in seconds) between ('dateTime') and ('dateTime' + 'resolution'). Roll up method specified by 'metric'."
+    cycleTimeSeconds: Long
+    "dataTime of data point. Each data point is separated by size of time resolution specified."
+    dateTime: DateTime
+}
+
+type DevOpsMetricsCycleTimeMean implements DevOpsMetricsCycleTimeMetrics {
+    "Mean of data points in 'data' array. Rounded to the nearest second."
+    aggregateData: Long
+    data: [DevOpsMetricsCycleTimeData]
+}
+
+type DevOpsMetricsCycleTimePercentile implements DevOpsMetricsCycleTimeMetrics {
+    """
+
+    The percentile value across all cycle-times in the database between dateTimeFrom and dateTimeTo
+    (not across the datapoints in 'data' array). Rounded to the nearest second.
+    """
+    aggregateData: Long
+    data: [DevOpsMetricsCycleTimeData]
+    "Percentile metric of returned values. Will be between 0 and 100."
+    percentile: Int
+}
+
+type DevOpsMetricsDeploymentFrequency {
+    "Mean of data points in 'data' array."
+    aggregateData: Float
+    "The deployment frequency data points rolled up by specified resolution."
+    data: [DevOpsMetricsDeploymentFrequencyData]
+    "Deployment environment type. Currently will only return for PRODUCTION, no EnvironmentType filter/input supported yet."
+    environmentType: DevOpsEnvironmentCategory
+    """
+
+    The size of time interval in which data points are rolled up in.
+    E.g. Count of data over 2 weeks with 1 day resolution means rollup is number of datapoints per day over 2 weeks.
+    """
+    resolution: DevOpsMetricsResolution
+    "Deployment state. Currently will only return for SUCCESSFUL, no State filter/input supported yet."
+    state: DeploymentState
+}
+
+"#### Response #####"
+type DevOpsMetricsDeploymentFrequencyData {
+    "Number of deployments between ('dateTime') and ('dateTime' + 'resolution')"
+    count: Int
+    "dataTime of data point. Each data point is separated by size of time resolution specified."
+    dateTime: DateTime
+}
+
+type DevOpsMetricsResolution {
+    "Unit for specified resolution value."
+    unit: DevOpsMetricsResolutionUnit
+    "Value for resolution specified."
+    value: Int
+}
+
+"#################### Supporting Types #####################"
+type DevOpsThirdPartyRepository {
+    "Avatar details for the third party repository."
+    avatar: DevOpsAvatar
+    "The ID of the third party repository."
+    id: ID!
+    "The name of the third party repository."
+    name: String
+    "The URL of the third party repository."
+    webUrl: URL
+}
+
+"Dev status context"
+type DevStatus {
+    activity: DevStatusActivity!
+    count: Int
+}
+
+"""
+
+WARNING: This ErrorDetails is shared with "xen_lifecycle_service". This should not be,
+but it was on oversight.
+"""
+type ErrorDetails {
+    "Specific code used to make difference between errors to handle them differently"
+    code: String!
+    "Addition error data"
+    fields: JSON
+    "Copy of top-level message"
+    message: String!
+}
+
+"Estimate object which contains an estimate for a card when it exists"
+type Estimate {
+    storyPoints: Float
+}
+
+type EstimationConfig {
+    "All available estimation types that can be used in the project."
+    available: [AvailableEstimations!]!
+    "Currently configured estimation."
+    current: CurrentEstimation!
+}
+
+"An arbitrary extension definition as defined by the Ecosystem"
+type Extension {
+    appOwner: User
+    appVersion: String
+    definitionId: ID!
+    environmentId: ID!
+    environmentKey: String!
+    environmentType: String!
+    id: ID!
+    installationId: String!
+    key: String!
+    properties: JSON!
+    type: String!
+}
+
+"The context in which an extension exists"
+type ExtensionContext {
+    extensionsByType(type: String!): [Extension!]!
+    id: ID!
+}
+
+type ExternalAuthProvider {
+    displayName: String!
+    key: String!
+    url: URL!
+}
+
+type FunctionDescription {
+    key: String!
+}
+
+type FunctionTrigger {
+    key: String
+    type: FunctionTriggerType
+}
+
+type GenericMutationErrorExtension implements MutationErrorExtension {
+    errorType: String
+    statusCode: Int
+}
+
+"Generic implementation of MutationResponse for responses that don't need any extra data"
+type GenericMutationResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type HostedResourcePreSignedUrl {
+    uploadFormData: JSON!
+    uploadUrl: String!
+}
+
+type Icon {
+    url: String
+}
+
+type InlineCardCreateConfig {
+    "Whether inline create is enabled"
+    enabled: Boolean!
+    "Whether the global create should be used when creating"
+    useGlobalCreate: Boolean
+}
+
+"The data returned from a function invocation"
+type InvocationResponsePayload {
+    "The body of the function response"
+    body: JSON!
+}
+
+"The response from an AUX effects invocation"
+type InvokeAuxEffectsResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    message: String!
+    result: AuxEffectsResult
+    statusCode: Int!
+    success: Boolean!
+}
+
+"The response from a function invocation"
+type InvokeExtensionResponse implements MutationResponse {
+    errorDetails: ErrorDetails
+    """
+
+    Details about the external auth for this service, if any exists.
+
+    This is typically used for directing the user to a consent screen.
+    """
+    externalAuth: [ExternalAuthProvider]
+    message: String!
+    "The invocation response"
+    response: InvocationResponsePayload
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Detailed information of a repository's branch"
+type IssueDevOpsBranchDetails {
+    createPullRequestUrl: String
+    createReviewUrl: String
+    lastCommit: IssueDevOpsHeadCommit
+    name: String!
+    pullRequests: [IssueDevOpsBranchPullRequestStatesSummary!]
+    reviews: [IssueDevOpsReview!]
+    url: String
+}
+
+"Short description of a pull request associated with a branch"
+type IssueDevOpsBranchPullRequestStatesSummary {
+    "Time of the last update in ISO 8601 format"
+    lastUpdate: DateTime
+    name: String!
+    status: IssueDevOpsPullRequestStatus
+    url: String
+}
+
+"Detailed information about a build tied to a provider"
+type IssueDevOpsBuildDetail {
+    buildNumber: Int
+    description: String
+    id: String!
+    lastUpdated: DateTime
+    name: String
+    references: [IssueDevOpsBuildReference!]
+    state: String
+    testSummary: IssueDevOpsTestSummary
+    url: String
+}
+
+"A build pipeline provider"
+type IssueDevOpsBuildProvider {
+    avatarUrl: String
+    builds: [IssueDevOpsBuildDetail!]
+    description: String
+    id: String!
+    name: String
+    url: String
+}
+
+"Information that links a build to a version control system (commits, branches, etc.)"
+type IssueDevOpsBuildReference {
+    name: String!
+    uri: String
+}
+
+"Detailed information of a commit in a repository"
+type IssueDevOpsCommitDetails {
+    author: IssueDevOpsPullRequestAuthor
+    createReviewUrl: String
+    displayId: String
+    files: [IssueDevOpsCommitFile!]
+    id: String!
+    isMerge: Boolean
+    message: String
+    reviews: [IssueDevOpsReview!]
+    "Time of the commit update in ISO 8601 format"
+    timestamp: DateTime
+    url: String
+}
+
+"Information of a file modified in a commit"
+type IssueDevOpsCommitFile {
+    changeType: IssueDevOpsCommitChangeType
+    linesAdded: Int
+    linesRemoved: Int
+    path: String!
+    url: String
+}
+
+"Detailed information of a deployment"
+type IssueDevOpsDeploymentDetails {
+    displayName: String
+    environment: IssueDevOpsDeploymentEnvironment
+    lastUpdated: DateTime
+    pipelineDisplayName: String
+    pipelineId: String!
+    pipelineUrl: String
+    state: IssueDevOpsDeploymentState
+    url: String
+}
+
+type IssueDevOpsDeploymentEnvironment {
+    displayName: String
+    id: String!
+    type: IssueDevOpsDeploymentEnvironmentType
+}
+
+"""
+
+This object witholds deployment providers essential information,
+as well as its list of latest deployments per pipeline.
+A provider without deployments related to the asked issueId will not be returned.
+"""
+type IssueDevOpsDeploymentProviderDetails {
+    "A list of the latest deployments of each pipeline"
+    deployments: [IssueDevOpsDeploymentDetails!]
+    homeUrl: String
+    id: String!
+    logoUrl: String
+    name: String
+}
+
+"Aggregates all the instance types (bitbucket, stash, github) and its development information"
+type IssueDevOpsDetails {
+    deploymentProviders: [IssueDevOpsDeploymentProviderDetails!]
+    embeddedMarketplace: IssueDevOpsEmbeddedMarketplace!
+    featureFlagProviders: [IssueDevOpsFeatureFlagProvider!]
+    instanceTypes: [IssueDevOpsProviderInstance!]!
+    remoteLinksByType: IssueDevOpsRemoteLinksByType
+}
+
+"Information related to the development process of an issue"
+type IssueDevOpsDevelopmentInformation {
+    details(instanceTypes: [String!]! = []): IssueDevOpsDetails
+}
+
+"""
+
+A set of booleans that indicate if the embedded marketplace
+should be shown if a user does not have installed providers
+"""
+type IssueDevOpsEmbeddedMarketplace {
+    shouldDisplayForBuilds: Boolean!
+    shouldDisplayForDeployments: Boolean!
+    shouldDisplayForFeatureFlags: Boolean!
+}
+
+type IssueDevOpsFeatureFlag {
+    details: [IssueDevOpsFeatureFlagDetails!]
+    displayName: String
+    "the identifier for the feature flag as provided"
+    id: String!
+    key: String
+    "Can be used to link to a provider record if required"
+    providerId: String
+    summary: IssueDevOpsFeatureFlagSummary
+}
+
+type IssueDevOpsFeatureFlagDetails {
+    environment: IssueDevOpsFeatureFlagEnvironment
+    lastUpdated: String
+    status: IssueDevOpsFeatureFlagStatus
+    url: String!
+}
+
+type IssueDevOpsFeatureFlagEnvironment {
+    name: String!
+    type: String
+}
+
+type IssueDevOpsFeatureFlagProvider {
+    createFlagTemplateUrl: String
+    featureFlags: [IssueDevOpsFeatureFlag!]
+    id: String!
+    linkFlagTemplateUrl: String
+}
+
+type IssueDevOpsFeatureFlagRollout {
+    percentage: Float
+    rules: Int
+    text: String
+}
+
+type IssueDevOpsFeatureFlagStatus {
+    defaultValue: String
+    enabled: Boolean!
+    rollout: IssueDevOpsFeatureFlagRollout
+}
+
+type IssueDevOpsFeatureFlagSummary {
+    lastUpdated: String
+    status: IssueDevOpsFeatureFlagStatus!
+    url: String
+}
+
+"Latest commit on a branch"
+type IssueDevOpsHeadCommit {
+    displayId: String!
+    "Time of the commit in ISO 8601 format"
+    timestamp: DateTime
+    url: String
+}
+
+"Detailed information of an instance and its data (source data, build data, deployment data)"
+type IssueDevOpsProviderInstance {
+    baseUrl: String
+    buildProviders: [IssueDevOpsBuildProvider!]
+    """
+
+    There are common cases where a Pull Request is merged and its branch is deleted.
+    The downstream sources do not provide repository information on the PR, only branches information.
+    When the branch is deleted, it's not possible to create the bridge between PRs and Repository.
+    For this reason, any PR that couldn't be assigned to a repository will appear on this list.
+    """
+    danglingPullRequests: [IssueDevOpsPullRequestDetails!]
+    """
+
+    An error message related to this instance passed down from DevStatus
+    These are not GraphQL errors. When an instance type is requested,
+    DevStatus may respond with a list instances and strings nested inside the 'errors' field, as follows:
+    `{ 'errors': [{'_instance': { ... }, error: 'unauthorized' }], detail: [ ... ] }`.
+    The status code for this response however is still 200
+    since only part of the instances requested may present these issues.
+    `devStatusErrorMessage` is deprecated. Use `devStatusErrorMessages`.
+    """
+    devStatusErrorMessage: String
+    devStatusErrorMessages: [String!]
+    id: String!
+    "Indicates if it is possible to return more than a single instance per type. Only possible with FeCru"
+    isSingleInstance: Boolean
+    "The name of the instance type"
+    name: String
+    repository: [IssueDevOpsRepositoryDetails!]
+    "Raw type of the instance. e.g. bitbucket, stash, github"
+    type: String
+    "The descriptive name of the instance type. e.g. Bitbucket Cloud"
+    typeName: String
+}
+
+"Description of a pull request or commit author"
+type IssueDevOpsPullRequestAuthor {
+    "The avatar URL of the author"
+    avatarUrl: String
+    name: String!
+}
+
+"Detailed information of a pull request"
+type IssueDevOpsPullRequestDetails {
+    author: IssueDevOpsPullRequestAuthor
+    branchName: String
+    branchUrl: String
+    commentCount: Int
+    id: String!
+    "Time of the last update in ISO 8601 format"
+    lastUpdate: DateTime
+    name: String
+    reviewers: [IssueDevOpsPullRequestReviewer!]
+    status: IssueDevOpsPullRequestStatus
+    url: String
+}
+
+"Description of a pull request reviewer"
+type IssueDevOpsPullRequestReviewer {
+    "The avatar URL of the reviewer"
+    avatarUrl: String
+    "Flag representing if the reviewer has already approved the PR"
+    isApproved: Boolean
+    name: String!
+}
+
+type IssueDevOpsRemoteLink {
+    actionIds: [String!]
+    attributeMap: [IssueDevOpsRemoteLinkAttributeTuple!]
+    description: String
+    displayName: String
+    id: String!
+    providerId: String
+    status: IssueDevOpsRemoteLinkStatus
+    type: String
+    url: String
+}
+
+type IssueDevOpsRemoteLinkAttributeTuple {
+    key: String!
+    value: String!
+}
+
+type IssueDevOpsRemoteLinkLabel {
+    value: String!
+}
+
+type IssueDevOpsRemoteLinkProvider {
+    actions: [IssueDevOpsRemoteLinkProviderAction!]
+    documentationUrl: String
+    homeUrl: String
+    id: String!
+    logoUrl: String
+    name: String
+}
+
+type IssueDevOpsRemoteLinkProviderAction {
+    id: String!
+    label: IssueDevOpsRemoteLinkLabel
+    templateUrl: String
+}
+
+type IssueDevOpsRemoteLinkStatus {
+    appearance: String
+    label: String
+}
+
+type IssueDevOpsRemoteLinkType {
+    remoteLinks: [IssueDevOpsRemoteLink!]
+    type: String!
+}
+
+type IssueDevOpsRemoteLinksByType {
+    providers: [IssueDevOpsRemoteLinkProvider!]!
+    types: [IssueDevOpsRemoteLinkType!]!
+}
+
+"Detailed information of a VCS repository"
+type IssueDevOpsRepositoryDetails {
+    "The repository avatar URL"
+    avatarUrl: String
+    branches: [IssueDevOpsBranchDetails!]
+    commits: [IssueDevOpsCommitDetails!]
+    description: String
+    name: String!
+    "A reference to the parent repository from where this has been forked for"
+    parent: IssueDevOpsRepositoryParent
+    pullRequests: [IssueDevOpsPullRequestDetails!]
+    url: String
+}
+
+"Short description of the parent repository from which the fork was made"
+type IssueDevOpsRepositoryParent {
+    name: String!
+    url: String
+}
+
+"Short desciption of a review associated with a branch or commit"
+type IssueDevOpsReview {
+    id: String!
+    state: String
+    url: String
+}
+
+"A summary for the tests results for a particular build"
+type IssueDevOpsTestSummary {
+    numberFailed: Int
+    numberPassed: Int
+    numberSkipped: Int
+    totalNumber: Int
+}
+
+type JiraAvatar {
+    large: String
+    medium: String
+    small: String
+    xsmall: String
+}
+
+type JiraIssueType implements Node {
+    avatar: JiraAvatar
+    description: String
+    id: ID!
+    name: String!
+}
+
+type JiraIssueTypeConnection {
+    "A list of edges."
+    edges: [JiraIssueTypeEdge]
+    "Information to aid in pagination."
+    pageInfo: JiraProjectsPageInfo!
+}
+
+type JiraIssueTypeEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: JiraIssueType
+}
+
+type JiraProject implements Node {
+    avatar: JiraAvatar
+    category: JiraProjectCategory
+    description: String
+    id: ID!
+    issueTypes(after: String, before: String, first: Int, last: Int): JiraIssueTypeConnection
+    key: String!
+    leadId: ID
+    name: String!
+    projectUrl: String
+    """
+
+    The connection entity for repository relationships for this Jira project, according to the specified
+    pagination, filtering and sorting.
+    """
+    repositoryRelationships(after: String, filter: JiraProjectAndRepositoryRelationshipFilter, first: Int = 20, sort: JiraProjectAndRepositoryRelationshipSort): JiraProjectAndRepositoryRelationshipConnection
+}
+
+"A relationship between a Jira project and a repository (Bitbucket or third party)."
+type JiraProjectAndRepositoryRelationship implements Node {
+    """
+
+    If the repository provider is Bitbucket, this will contain the ARI of the Bitbucket repository,
+    otherwise null. This field is only present for testing and will be removed when the Bitbucket repository
+    is hydrated.
+    """
+    bitbucketRepository: BitbucketRepository
+    "Whether the relationship is explicit or inferred."
+    certainty: DevOpsRelationshipCertainty!
+    "When the relationship was created."
+    createdAt: DateTime!
+    "The AAID or system or system entity that created the relationship."
+    createdBy: String!
+    "An optional description of the relationship."
+    description: String
+    "The ARI of this relationship."
+    id: ID!
+    "The Jira project related to the repository."
+    jiraProject: JiraProject
+    "When the relationship was inferred last. Only present for implicit relationships."
+    lastInferredAt: DateTime
+    """
+
+    The system that inferred the relationship last.
+    Only present for implicit relationships.
+    """
+    lastInferredBy: String
+    "When the relationship was updated last.  Only present for relationships that have been updated."
+    lastUpdatedAt: DateTime
+    """
+
+    The AAID or system or system entity that updated the relationship last.
+    Only present for relationships that have been updated.
+    """
+    lastUpdatedBy: String
+    "Look up JSON properties of the relationship by keys."
+    properties(keys: [String!]!): JSON
+    """
+
+    The revision must be provided when updating a relationship to prevent
+    simultaneous updates from overwriting each other.
+    """
+    revision: ID!
+    """
+
+    If the repository provider is a third party, this will contain the third party repository details,
+    otherwise null.
+    """
+    thirdPartyRepository: DevOpsThirdPartyRepository
+}
+
+"The connection object for a collection of Jira project and repository relationships."
+type JiraProjectAndRepositoryRelationshipConnection {
+    edges: [JiraProjectAndRepositoryRelationshipEdge]
+    nodes: [JiraProjectAndRepositoryRelationship]
+    pageInfo: PageInfo!
+}
+
+type JiraProjectAndRepositoryRelationshipEdge {
+    cursor: String!
+    node: JiraProjectAndRepositoryRelationship
+}
+
+type JiraProjectCategory implements Node {
+    "description of the Project category"
+    description: String
+    "Global id of this project category"
+    id: ID!
+    "display name of the Project category"
+    name: String
+}
+
+type JiraProjectCategoryConnection {
+    "A list of edges."
+    edges: [JiraProjectCategoryEdge]
+    "Information to aid in pagination."
+    pageInfo: JiraProjectsPageInfo!
+}
+
+type JiraProjectCategoryEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: JiraProjectCategory
+}
+
+type JiraProjectConnection {
+    "A list of edges."
+    edges: [JiraProjectEdge]
+    "Information to aid in pagination."
+    pageInfo: JiraProjectsPageInfo!
+}
+
+"An edge in a connection."
+type JiraProjectEdge {
+    "A cursor for use in pagination"
+    cursor: String!
+    "The item at the end of the edge"
+    node: JiraProject
+}
+
+"Information about pagination in a connection."
+type JiraProjectsPageInfo {
+    "When paginating forwards, the cursor to continue."
+    endCursor: String
+    "When paginating forwards, are there more items?"
+    hasNextPage: Boolean!
+    "When paginating backwards, are there more items?"
+    hasPreviousPage: Boolean!
+    "When paginating backwards, the cursor to continue."
+    startCursor: String
+}
+
+type JiraQuery {
+    "Returns a paginated connection of project categories"
+    allJiraProjectCategories(
+        "The index based cursor to specify the beginning of the items, if not specified it's assumed as the cursor for the item before the beginning"
+        after: String,
+        before: String,
+        "The identifier that indicates that cloud instance this data is to be fetched for"
+        cloudId: ID!,
+        "The number of items to be sliced away to target between the after and before cursors"
+        first: Int,
+        last: Int
+    ): JiraProjectCategoryConnection
+    "Returns a paginated connection of projects that meet the provided filter criteria"
+    allJiraProjects(
+        "The index based cursor to specify the beginning of the items, if not specified it's assumed as the cursor for the item before the beginning"
+        after: String,
+        before: String,
+        "The identifier that indicates that cloud instance this data is to be fetched for"
+        cloudId: ID!,
+        "the filter criteria that is used to filter the projects"
+        filter: JiraProjectFilterInput!,
+        "The number of items to be sliced away to target between the after and before cursors"
+        first: Int,
+        last: Int
+    ): JiraProjectConnection
+    jiraProject(id: ID!): JiraProject
+}
+
+type JiraReleases {
+    "Deployment summaries that are ordered by the date at which they occured (most recent to least recent)."
+    deployments(after: String, filter: JiraReleasesDeploymentFilter!, first: Int! = 100): JiraReleasesDeploymentSummaryConnection
+    """
+
+    Epic data that is filtered & ordered based on release-specific information.
+
+    The returned epics will be ordered by the dates of the most recent deployments for
+    the issues within the epic that match the input filter. An epic containing an issue
+    that was released more recently will appear earlier in the list.
+    """
+    epics(after: String, filter: JiraReleasesEpicFilter!, first: Int! = 100): JiraReleasesEpicConnection
+    """
+
+    Issue data that is filtered & ordered based on release-specific information.
+
+    The returned issues will be ordered by the dates of the most recent deployments that
+    match the input filter. An issue that was released more recently will appear earlier
+    in the list.
+    """
+    issues(after: String, filter: JiraReleasesIssueFilter!, first: Int! = 100): JiraReleasesIssueConnection
+}
+
+type JiraReleasesDeploymentSummaryConnection {
+    edges: [JiraReleasesDeploymentSummaryEdge]
+    nodes: [DeploymentSummary]
+    pageInfo: PageInfo!
+}
+
+type JiraReleasesDeploymentSummaryEdge {
+    cursor: String!
+    node: DeploymentSummary
+}
+
+type JiraReleasesEpic {
+    assignee: User
+    color: String
+    id: ID!
+    issueKey: String
+    issueTypeId: ID
+    lastDeployed: DateTime
+    summary: String
+}
+
+type JiraReleasesEpicConnection {
+    edges: [JiraReleasesEpicEdge]
+    nodes: [JiraReleasesEpic]
+    pageInfo: PageInfo!
+}
+
+type JiraReleasesEpicEdge {
+    cursor: String!
+    node: JiraReleasesEpic
+}
+
+type JiraReleasesIssue {
+    assignee: User
+    """
+
+    The epic this issue is contained within (either directly or indirectly).
+
+    Note: If the issue and its ancestors are not within an epic, the value will be `null`.
+    """
+    epic: JiraReleasesEpic
+    id: ID!
+    issueKey: String
+    issueTypeId: ID
+    lastDeployed: DateTime
+    summary: String
+}
+
+type JiraReleasesIssueConnection {
+    edges: [JiraReleasesIssueEdge]
+    nodes: [JiraReleasesIssue]
+    pageInfo: PageInfo!
+}
+
+type JiraReleasesIssueEdge {
+    cursor: String!
+    node: JiraReleasesIssue
+}
+
+type MarketplaceApp {
+    "A numeric identifier for an app in marketplace."
+    appId: MarketplaceAppId!
+    "A human-readable identifier for an app in marketplace."
+    appKey: String!
+    "When enabled providing customers with a place to ask questions or browse answers about the app."
+    isAtlassianCommunityEnabled: Boolean!
+    "Status of appâs listing in Marketplace."
+    listingStatus: MarketplaceListingStatus!
+    "App's name in Marketplace."
+    name: String!
+    "Marketplace Partner that provided this app in Marketplace."
+    partner: MarketplacePartner
+    "Link to a statement explaining how the app uses and secures user data."
+    privacyPolicyUrl: String
+    "Atlassian product hosting types compatible with this app"
+    productHostingOptions: [AtlassianProductHostingType!]!
+    "A short phrase that summarizes what the app does."
+    tagline: String
+}
+
+"Verion of App in Marketplace system"
+type MarketplaceAppVersion {
+    "An unique number for each version, higher value indicates more recent version of the app."
+    buildNumber: ID!
+    "A URL where users can find version-specific or general documentation about the app."
+    documentationUrl: String
+    "Link to the terms that give end users the right to use the app."
+    endUserLicenseAgreementUrl: String
+    "Feature highlights to be displayed on this app's listing"
+    highlights: [MarketplaceListingHighlight!]
+    "List of Hosting types where compatible Atlassian product instances are installed."
+    hostingOptions: [AtlassianProductHostingType!]!
+    "A URL where customers can access more information about this app."
+    learnMoreUrl: String
+    "Awards, customer testimonials, accolades, language support, or other details about this app."
+    moreDetails: String
+    "A URL where customers can purchase this app."
+    purchaseUrl: String
+    "Feature screenshots to be displayed on this app's listing"
+    screenshots: [MarketplaceListingScreenshot!]
+    "A URL to access the app's source code license agreement. This agreement governs how the app's source code is used."
+    sourceCodeLicenseUrl: String
+    "Support type available for this app version."
+    supportType: MarketplaceAppSupportType
+    "This version identifier is for end users, more than one app versions can have same version value."
+    version: String!
+    "Visibility of this version of Marketplace app."
+    visibility: MarketplaceAppVersionVisibility!
+    "The ID of a YouTube video explaining the features of this app version."
+    youtubeId: String
+}
+
+"An image file in Atlassian Marketplace system"
+type MarketplaceImageFile {
+    "Height of the image"
+    height: Int!
+    "Unique id of the file in Atlassian Marketplace system"
+    id: String!
+    "Width of the image"
+    width: Int!
+}
+
+type MarketplaceListingHighlight {
+    "Screenshot's explaination"
+    caption: String
+    "Highlight's cropped screenshot"
+    croppedScreenshot: MarketplaceListingImage!
+    "Highlight's screenshot"
+    screenshot: MarketplaceListingScreenshot!
+    "Key feature summary."
+    summary: String
+    "A short action-oriented highlight title."
+    title: String
+}
+
+"Image to be displayed on a listing in Marketplace"
+type MarketplaceListingImage {
+    "High resolution image file"
+    highResolution: MarketplaceImageFile
+    "Original image file uploaded"
+    original: MarketplaceImageFile!
+    "Image scaled to get required size"
+    scaled: MarketplaceImageFile!
+}
+
+type MarketplaceListingScreenshot {
+    "Screenshot's explaination"
+    caption: String
+    "Screenshot's image file"
+    image: MarketplaceListingImage!
+}
+
+"Marketplace Partners provide apps and integrations available for purchase on the Atlassian Marketplace that extend the power of Atlassian products."
+type MarketplacePartner {
+    "Marketplace Partnerâs address"
+    address: MarketplacePartnerAddress
+    "Unique id of a Marketplace Partner."
+    id: MarketplacePartnerId!
+    "Name of Marketplace Partner"
+    name: String!
+    "Tells if the Marketplace partner is an Atlassianâs internal one."
+    partnerType: MarketplacePartnerType
+    "Marketplace Programs that this Marketplace Partner has participated in."
+    programs: MarketplacePartnerPrograms
+    "Marketplace Partner support information"
+    support: MarketplacePartnerSupport
+}
+
+"Marketplace Partner's address"
+type MarketplacePartnerAddress {
+    "City of Marketplace Partnerâs address"
+    city: String
+    "Country of Marketplace Partnerâs address"
+    country: String
+    "Line 1 of Marketplace Partnerâs address"
+    line1: String
+    "Line 2 of Marketplace Partnerâs address"
+    line2: String
+    "Postal code of Marketplace Partnerâs address"
+    postalCode: String
+    "State of Marketplace Partnerâs address"
+    state: String
+}
+
+"Marketplace Programs that this Marketplace Partner has participated in."
+type MarketplacePartnerPrograms {
+    isCloudAppSecuritySelfAssessmentDone: Boolean
+}
+
+"Marketplace Partner's support information"
+type MarketplacePartnerSupport {
+    "Marketplace Partnerâs support availability details"
+    availability: MarketplacePartnerSupportAvailability
+    "Marketplace Partnerâs support contact details"
+    contactDetails: MarketplacePartnerSupportContact
+}
+
+"Marketplace Partner's support availability information"
+type MarketplacePartnerSupportAvailability {
+    "Days of week when Marketplace Partner support is available."
+    daysOfWeek: [String!]!
+    "Support availability end time, in ISO time format `hh:mm` e.g, 23:25"
+    endTime: String
+    "Dates on which MarketplacePartnerâs support is not available due to holiday"
+    holidays: [MarketplacePartnerSupportHoliday!]!
+    "Support availability start time, in ISO time format `hh:mm` e.g, 23:25"
+    startTime: String
+    "Support availability timezone for startTime and endTime values. e.g, âAmerica/Los_Angelesâ"
+    timezone: String
+}
+
+"Marketplace Partner's support contact information"
+type MarketplacePartnerSupportContact {
+    "Marketplace Partnerâs support contact email id"
+    emailId: String
+    "Marketplace Partnerâs support contact phone number"
+    phoneNumber: String
+    "Marketplace Partnerâs support website URL"
+    websiteUrl: String
+}
+
+"Marketplace Partner's support holiday"
+type MarketplacePartnerSupportHoliday {
+    "Support holiday date, follows ISO date format `YYYY-MM-DD` e.g, 2020-08-12"
+    date: String!
+    "Tells whether it occurs one time or is annual."
+    holidayFrequency: MarketplacePartnerSupportHolidayFrequency!
+    "Holidayâs title"
+    title: String!
+}
+
+type MoveSprintDownResponse implements MutationResponse {
+    boardScope: BoardScope
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type MoveSprintUpResponse implements MutationResponse {
+    boardScope: BoardScope
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type Mutation {
+    appStorage: AppStorageMutation
+    "THIS OPERATION IS IN BETA"
+    changePolarisIdea(input: ChangePolarisIdeaInput!): ChangePolarisIdeaPayload
+    "THIS OPERATION IS IN BETA"
+    changePolarisIdeaRank(input: ChangePolarisIdeaRankInput!): ChangePolarisIdeaRankPayload
+    completeSprint(input: CompleteSprintInput!): CompleteSprintResponse
+    "Creates an application in Xen"
+    createApp(input: CreateAppInput!): CreateAppResponse
+    createAppDeployment(input: CreateAppDeploymentInput!): CreateAppDeploymentResponse
+    createAppDeploymentUrl(input: CreateAppDeploymentUrlInput!): CreateAppDeploymentUrlResponse
+    """
+
+    Create a tunnel for an app
+
+    This will allow api calls for this app to be tunnelled to a locally running
+    server to help with writing and debugging functions.
+
+    This call will fail if a tunnel already exists, unless the 'force' flag is set.
+
+    Tunnels automatically expire after 30 minutes
+    """
+    createAppTunnel(input: CreateAppTunnelInput!): CreateAppTunnelResponse
+    createColumn(input: CreateColumnInput!): CreateColumnOutput
+    createContainerToken(input: CreateContainerTokenInput!): CreateContainerTokenResponse
+    createHostedResourceUploadUrl(input: CreateHostedResourceUploadUrlInput!): CreateHostedResourceUploadUrlPayload
+    "THIS OPERATION IS IN BETA"
+    createPolarisIdea(input: CreatePolarisIdeaInput!): CreatePolarisIdeaPayload
+    "THIS OPERATION IS IN BETA"
+    createPolarisView(input: CreatePolarisViewInput!): CreatePolarisViewPayload
+    createSprint(input: CreateSprintInput!): CreateSprintResponse
+    """
+
+    Creates a webtrigger URL. If webtrigger url is already created for given `input` the old url will be returned
+    unless `forceCreate` flag is set to true - in that case new url will be always created.
+    """
+    createWebTriggerUrl(forceCreate: Boolean = false, input: WebTriggerUrlInput!): CreateWebTriggerUrlResponse
+    "Deletes an application from Xen"
+    deleteApp(input: DeleteAppInput!): DeleteAppResponse
+    """
+
+    Deletes a key-value pair for a given environment.
+
+    This operation is idempotent.
+    """
+    deleteAppEnvironmentVariable(input: DeleteAppEnvironmentVariableInput!): GenericMutationResponse
+    """
+
+    Delete a tunnel for an app
+
+    All traffic for this app will return to invoking the deployed function
+    instead of the tunnel url.
+    """
+    deleteAppTunnel(input: DeleteAppTunnelInput!): GenericMutationResponse
+    deleteColumn(input: DeleteColumnInput!): DeleteColumnOutput
+    "THIS OPERATION IS IN BETA"
+    deletePolarisView(id: ID!): DeletePolarisViewPayload
+    deleteSprint(input: DeleteSprintInput!): MutationResponse
+    "Deletes a webtrigger URL."
+    deleteWebTriggerUrl(id: ID!): DeleteWebTriggerUrlResponse
+    editSprint(input: EditSprintInput!): SprintResponse
+    "Installs a given app + environment pair into a given installation context."
+    installApp(input: AppInstallationInput!): AppInstallationResponse
+    """
+
+    Invoke a function using the aux effects handling pipeline
+
+    This includes some additional processing over normal invocations, including
+    validation and transformation, and expects functions to return payloads that
+    match the AUX effects spec.
+    """
+    invokeAuxEffects(input: InvokeAuxEffectsInput!): InvokeAuxEffectsResponse
+    """
+
+    Invoke a function associated with a specific extension.
+
+    This is intended to be the main way to interact with extension functions
+    created for apps
+    """
+    invokeExtension(input: InvokeExtensionInput!): InvokeExtensionResponse
+    moveSprintDown(input: MoveSprintDownInput!): MoveSprintDownResponse
+    moveSprintUp(input: MoveSprintUpInput!): MoveSprintUpResponse
+    "Onboard a list of external developers into the closed beta by AAIDs"
+    onboardUsers(input: UserOnboardingInput!): GenericMutationResponse
+    rankColumn(input: RankColumnInput!): RankColumnOutput
+    "THIS OPERATION IS IN BETA"
+    scanPolarisProject(input: ScanPolarisProjectInput!): PolarisProject
+    """
+
+    Sets a key-value pair for a given environment.
+
+    It will optionally support encryption of the provided pair for sensitive variables.
+    This operation is an upsert.
+    """
+    setAppEnvironmentVariable(input: SetAppEnvironmentVariableInput!): GenericMutationResponse
+    setColumnLimit(input: SetColumnLimitInput!): SetColumnLimitOutput
+    setColumnName(input: SetColumnNameInput!): SetColumnNameOutput
+    """
+
+    Sets the outbound-auth service credentials in a specific environment for a given app.
+
+    This makes the assumption that the environment (and hence container) was already created,
+    and the deploy containing the relevant outbound-auth service definition was already deployed.
+    """
+    setExternalAuthCredentials(input: SetExternalAuthCredentialsInput!): GenericMutationResponse
+    """
+
+    Sets the admin swimlane strategy for the board.  Use NONE is not using swimlanes.
+    Strategy effects everyone who views the board.
+    """
+    setSwimlaneStrategy(input: SetSwimlaneStrategyInput!): SetSwimlaneStrategyResponse
+    """
+
+    Sets the user swimlane strategy for the board.  Use NONE if not using swimlanes.
+    Strategy affects the current user alone.
+    """
+    setUserSwimlaneStrategy(input: SetSwimlaneStrategyInput!): SetSwimlaneStrategyResponse
+    startSprint(input: StartSprintInput!): SprintResponse
+    "Uninstalls a given installationId"
+    uninstallApp(input: AppUninstallationInput!): AppUninstallationResponse
+    "THIS OPERATION IS IN BETA"
+    updatePolarisView(id: ID!, input: UpdatePolarisViewInput!): UpdatePolarisViewPayload
+    "Upgrades a given app + environment pair into a given installation context."
+    upgradeApp(input: AppInstallationUpgradeInput!): AppInstallationUpgradeResponse
+}
+
+"An error that has occured in response to a mutation"
+type MutationError {
+    "A list of extension properties to the error"
+    extensions: MutationErrorExtension
+    "A human readable error message"
+    message: String
+}
+
+type MyActivities {
+    """
+
+    get all activity for the currently logged in user
+    - filters - query filters for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    all(after: String, filters: [ActivitiesFilter!], first: Int): ActivitiesConnection
+    """
+
+    get "viewed" activity for the currently logged in user
+    - filters - query filters for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    viewed(after: String, filters: [ActivitiesFilter!], first: Int): ActivitiesConnection
+    """
+
+    get "worked on" activity for the currently logged in user
+    - filters - query filters for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    workedOn(after: String, filters: [ActivitiesFilter!], first: Int): ActivitiesConnection
+}
+
+" --------------------------------------- API v1"
+type MyActivity {
+    """
+
+    get all activity
+    - filter - query filter for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    all(filter: ActivityFilter, first: Int): ActivityConnection!
+    """
+
+    get "Viewed" activity
+    - filter - query filter for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    viewed(filter: ActivityFilter, first: Int): ActivityConnection!
+    """
+
+    get "Worked on" activity
+    - filter - query filter for the activity stream
+    - first - show 1st <N> items of the response
+    """
+    workedOn(filter: ActivityFilter, first: Int): ActivityConnection!
+}
+
+type OpsgenieAlertCountByPriority {
+    countPerDay: [OpsgenieAlertCountPerDay]
+    priority: String
+}
+
+type OpsgenieAlertCountPerDay {
+    count: Int
+    day: String
+}
+
+type OpsgenieQuery {
+    opsgenieTeam(id: ID!): OpsgenieTeam
+    "for hydration batching, restricted to 25."
+    opsgenieTeams(ids: [ID!]!): [OpsgenieTeam]
+}
+
+type OpsgenieSchedule {
+    enabled: Boolean
+    finalTimeline(endTime: DateTime!, startTime: DateTime!): OpsgenieScheduleTimeline
+    id: ID!
+    name: String
+    timezone: String
+}
+
+type OpsgenieSchedulePeriod {
+    endDate: DateTime
+    " Enum?"
+    recipientId: ID
+    startDate: DateTime
+    type: String
+}
+
+type OpsgenieScheduleRotation {
+    id: ID
+    " is this id needed?"
+    name: String
+    order: Int
+    " More than 50 possible? if yes => Connection"
+    periods: [OpsgenieSchedulePeriod]
+}
+
+type OpsgenieScheduleTimeline {
+    endDate: DateTime
+    " # More than 50 possible? if yes => Connection"
+    rotations: [OpsgenieScheduleRotation]
+    startDate: DateTime
+}
+
+type OpsgenieTeam implements Node {
+    alertCounts(endTime: DateTime!, startTime: DateTime!, tags: [String!], timezone: String): [OpsgenieAlertCountByPriority]
+    createdAt: DateTime
+    description: String
+    id: ID!
+    members(after: String, before: String, first: Int, last: Int): OpsgenieTeamMemberConnection
+    " ARI"
+    name: String
+    schedules: [OpsgenieSchedule]
+    updatedAt: DateTime
+}
+
+type OpsgenieTeamMember {
+    user: User
+}
+
+type OpsgenieTeamMemberConnection {
+    edges: [OpsgenieTeamMemberEdge]
+    pageInfo: PageInfo!
+}
+
+type OpsgenieTeamMemberEdge {
+    cursor: String!
+    node: OpsgenieTeamMember
+}
+
+"Relay-style PageInfo type."
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+}
+
+type PolarisAuditRecord {
+    action: String!
+    agent: String
+    cloudId: String
+    disposition: Int
+    duration: Float
+    effort: PolarisAuditWorkLoad
+    query: String
+    requestId: String
+    sequence: Int!
+    size: Int
+    timestamp: String!
+    user: String
+}
+
+type PolarisAuditWorkLoad {
+    dbCreate: Int
+    dbDelete: Int
+    dbRead: Int
+    dbTime: Float
+    dbUpdate: Int
+    jiraRead: Int
+    jiraSearch: Int
+    jiraTime: Float
+    jiraWrite: Int
+}
+
+type PolarisBoardVisualization implements PolarisVisualization {
+    "The grouping field for this visualization."
+    groupBy: PolarisIdeaField
+    iconUrl: String! @deprecated(reason : "No longer supported")
+    "The set of fields to include in cards"
+    include: [PolarisCardField!]!
+}
+
+type PolarisCardField {
+    field: PolarisIdeaField!
+}
+
+type PolarisGroupValue {
+    " a label value (which has no identity besides its string value)"
+    id: String
+    label: String
+}
+
+"An PolarisIdea is the unit of management in Polaris"
+type PolarisIdea {
+    "Description is builtin"
+    description: String
+    "The values for extension fields"
+    fields: [PolarisIdeaFieldValue!]
+    id: ID!
+    "What are the implementations, and what is their status"
+    implementations: PolarisImplementationConnection
+    issueId: Long
+    "Key is builtin; it is the key for the underlying Jira issue"
+    key: String
+    "Status is builtin"
+    status: PolarisIdeaStatus
+    "Summary is builtin"
+    summary: String
+    "What are the supporting objects"
+    supports: PolarisSupportConnection
+    "Does this idea have unread information in it?"
+    unread: Boolean
+}
+
+type PolarisIdeaConnection {
+    edges: [PolarisIdeaEdge!]!
+    nodes: [PolarisIdea!]
+    pageInfo: PolarisIdeaPageInfo!
+    totalCount: Int!
+}
+
+type PolarisIdeaDateField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaDateFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: String!
+}
+
+type PolarisIdeaDateTimeField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaDateTimeFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: String!
+}
+
+type PolarisIdeaDocumentField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+"""
+
+PolarisIdeaDocumentFieldValue represents an ADF document,
+which is the value for description fields and for fields
+of type "Paragraph" in the NextGen UI
+"""
+type PolarisIdeaDocumentFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: String!
+}
+
+type PolarisIdeaEdge {
+    cursor: String!
+    node: PolarisIdea!
+}
+
+type PolarisIdeaFieldOption {
+    id: ID!
+    label: String!
+}
+
+type PolarisIdeaIssueTypeField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaKeyField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaLabelsField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaLabelsFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: [String!]!
+}
+
+type PolarisIdeaNumberField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaNumberFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: Float!
+}
+
+type PolarisIdeaOptionField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    options: [PolarisIdeaFieldOption!]
+    sortable: Boolean!
+}
+
+type PolarisIdeaOptionFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: PolarisIdeaFieldOption!
+}
+
+type PolarisIdeaOptionsField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    options: [PolarisIdeaFieldOption!]
+    sortable: Boolean!
+}
+
+type PolarisIdeaOptionsFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: [PolarisIdeaFieldOption!]!
+}
+
+type PolarisIdeaPageInfo {
+    endCursor: String!
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String!
+}
+
+type PolarisIdeaSpecialField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+    specialType: String
+}
+
+"An PolarisIdeaStatus is PolarisIdea builtin status field"
+type PolarisIdeaStatus {
+    "Status ID"
+    id: ID!
+    "Status name"
+    name: String!
+    "Status category"
+    statusCategory: PolarisIdeaStatusCategory!
+}
+
+"An PolarisIdeaStatusCategory is PolarisIdeaStatus category"
+type PolarisIdeaStatusCategory {
+    "Status category ID"
+    id: Int!
+    "Status category name"
+    name: String
+}
+
+type PolarisIdeaStatusField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaStringField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaStringFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    link: String
+    value: String!
+}
+
+type PolarisIdeaType {
+    description: String
+    iconUrl: String
+    id: ID!
+    name: String!
+}
+
+type PolarisIdeaUserField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaUserFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    " id only, this will get stitched in AGG"
+    link: String
+    value: ID!
+}
+
+type PolarisIdeaUsersField implements PolarisIdeaField {
+    defaultSortOrder: PolarisSortOrder
+    editable: Boolean!
+    fieldId: Int
+    fieldName: String
+    groupable: Boolean!
+    id: ID!
+    jiraFieldKey: String
+    label: String!
+    linearizable: Boolean!
+    sortable: Boolean!
+}
+
+type PolarisIdeaUsersFieldValue implements PolarisIdeaFieldValue {
+    fieldId: Int!
+    " id only, this will get stitched in AGG"
+    link: String
+    value: [ID!]!
+}
+
+type PolarisImplementation implements Node {
+    id: ID!
+    key: String!
+    status: PolarisImplementationStatus
+    summary: String
+}
+
+type PolarisImplementationConnection {
+    edges: [PolarisImplementationEdge]
+    nodes: [PolarisImplementation]
+    pageInfo: PolarisImplementationPageInfo!
+    statusBreakdown: PolarisImplementationStatusBreakdown
+    totalCount: Int
+}
+
+type PolarisImplementationEdge {
+    cursor: String!
+    node: PolarisImplementation!
+}
+
+type PolarisImplementationPageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+}
+
+type PolarisImplementationStatus {
+    iconUrl: String!
+    name: String!
+}
+
+type PolarisImplementationStatusBreakdown {
+    totalDone: Int
+    totalInProgress: Int
+    totalTodo: Int
+    totalUndefined: Int
+}
+
+type PolarisProject {
+    fields: [PolarisIdeaField!]!
+    """
+
+    ARI of the project which is a polaris project, for example:
+
+    `ari:cloud:cebeacbd-f85e-483c-96ac-fd432a12ad1c:project/10004`
+    """
+    id: ID!
+    """
+
+    Initially only expect to have one idea type per project.  Defining
+    as a list here for future expandability.
+    """
+    ideaTypes: [PolarisIdeaType!]!
+    "Every Jira project has a key"
+    key: String!
+    "Every Jira project has a name"
+    name: String!
+    rankField: ID
+    views: [PolarisView!]!
+    "The view set associated with the \"all PolarisIdeas\" dynamic collection"
+    viewset: PolarisViewSet! @deprecated(reason : "No longer supported")
+}
+
+type PolarisSortField {
+    field: PolarisIdeaField!
+    order: PolarisSortOrder
+}
+
+type PolarisSupport implements Node {
+    id: ID!
+    key: String!
+    summary: String
+}
+
+type PolarisSupportConnection {
+    edges: [PolarisSupportEdge]
+    jql: String
+    nodes: [PolarisSupport]
+    pageInfo: PolarisSupportPageInfo!
+    totalCount: Int
+}
+
+type PolarisSupportEdge {
+    cursor: String!
+    node: PolarisSupport!
+}
+
+type PolarisSupportPageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+}
+
+type PolarisTableVisualization implements PolarisVisualization {
+    """
+
+    The set of columns for this visualization.  Configures the column order,
+    sort priority, rendering format, etc.
+    """
+    columns: [PolarisTabularColumn!]! @deprecated(reason : "No longer supported")
+    iconUrl: String! @deprecated(reason : "No longer supported")
+}
+
+type PolarisTabularColumn {
+    "The field whose value appears in this column."
+    field: PolarisIdeaField
+    """
+
+    The format to use to show the data in the column, if other
+    than the default.
+    """
+    format: String
+    """
+
+    An override for the column heading; if not specified,
+    the field label should be used.
+    """
+    heading: String
+    "The unique identifier for this column"
+    id: ID!
+    """
+
+    The horizontal position of the column in a tabular view.
+    The leftmost column is position 0.
+    """
+    position: Int!
+    """
+
+    The sort priority of the column, if any.  1 is highest
+    priority sort, 2 is next highest, etc.
+    """
+    sortPriority: Int
+    """
+
+    The width of the column in proprortional units.  If not specified,
+    client should choose wisely.
+    """
+    width: Int
+}
+
+type PolarisView {
+    fields: [PolarisIdeaField!]!
+    groupBy: PolarisIdeaField
+    groupValues: [PolarisGroupValue]
+    """
+
+    ARI of the polaris view itself.  For example,
+
+    `ari:cloud:cebeacbd-f85e-483c-96ac-fd432a12ad1c:polaris-view/10003`
+    """
+    id: ID!
+    ideas(after: String, before: String, filter: PolarisFilterInput, first: Int, last: Int): PolarisIdeaConnection! @deprecated(reason : "No longer supported")
+    """
+
+    Can the view be changed in-place?  Immutable views can be the
+    source of a clone operation, but it is an error to try to update
+    one.
+    """
+    immutable: Boolean
+    """
+
+    The JQL that would produce the same set of issues as are returned by
+    the ideas connection
+    """
+    jql(filter: PolarisFilterInput): String
+    name: String!
+    sort: [PolarisSortField]
+    "The user-supplied part of a JQL filter"
+    userJql: String
+    viewset: PolarisViewSet! @deprecated(reason : "No longer supported")
+    visualization: PolarisVisualization @deprecated(reason : "No longer supported")
+    """
+
+    this is being flattened out from the visualization substructure;
+    these view attributes are all modelled as optional, and their
+    significance depends on the selected visualizationType
+    """
+    visualizationType: PolarisVisualizationType!
+    x: PolarisIdeaField
+    y: PolarisIdeaField
+}
+
+type PolarisViewSet {
+    additional: [PolarisView!]!
+    default: PolarisView!
+    id: ID!
+}
+
+type Query {
+    """
+
+    API v2
+    Get user activities.
+    """
+    activities: Activities
+    app(id: ID!): App
+    appDeployment(appId: ID!, environmentKey: String!, id: ID!): AppDeployment
+    """
+
+    `appLogLines()` returns an object for paging over the contents of a single
+    invocation's log lines, given by the `invocation` parameter (an ID
+    returned from a `appLogs()` query).
+
+    Each `AppLogLine` consists of a `timestamp`, an optional `message`,
+    an optional `level`, and an `other` field that contains any
+    additional JSON fields included in the log line.  (Since
+    the app itself can control the schema of this JSON, we can't
+    use native GraphQL capabilities to describe the fields here.)
+
+    The returned objects use the Relay naming/nesting style of
+    `AppLogLineConnection` &rarr; `[AppLogLineEdge]` &rarr;  `AppLogLine`.
+    """
+    appLogLines(
+        after: String,
+        first: Int = 100,
+        "The `id` returned from an appLog() query."
+        invocation: ID!
+    ): AppLogLineConnection
+    """
+
+    `appLogs()` returns an object for paging over AppLog objects, each of which
+    represents one invocation of a function.
+
+    The returned objects use the Relay naming/nesting style of
+    `AppLogConnection` &rarr; `[AppLogEdge]` &rarr;  `AppLog`.
+
+    It takes parameters (`query: LogQueryInput`) to narrow down the invocations
+    being searched, requiring at least an app and environment.
+    """
+    appLogs(
+        "The app ID. Required."
+        appId: ID!,
+        before: String,
+        """
+
+        Specify which environment(s) to search.
+        Must not be empty if you want any results.
+        """
+        environmentId: [ID!]!,
+        last: Int = 20,
+        query: LogQueryInput
+    ): AppLogConnection
+    """
+
+    Get an list of untyped entity in a specific context, optional query parameters where condition, first and after
+
+    where condition to filter
+    returns the first N entities when queried. Should not exceed 20
+    this is a cursor after which (exclusive) the data should be fetched from
+    """
+    appStoredEntities(after: String, contextAri: ID!, first: Int, where: [AppStoredEntityFilter!]): AppStoredEntityConnection
+    """
+
+    Get an untyped entity in a specific context given a key
+
+    Keys must be between 1-100 characters long and must match the following pattern /^[a-zA-Z0-9:._\s-]+$/
+    """
+    appStoredEntity(contextAri: ID!, key: ID!): AppStoredEntity
+    bitbucket: BitbucketQuery
+    boardScope(boardId: ID!): BoardScope
+    codeInJira(
+        "The identifier that indicates that cloud instance this data is to be fetched for"
+        cloudId: ID!
+    ): CodeInJira
+    devOpsMetrics: DevOpsMetrics
+    developmentInformation(issueId: ID!): IssueDevOpsDevelopmentInformation
+    diagnostics: JSON
+    echo: String
+    extensionByKey(contextId: ID!, definitionId: ID!, extensionKey: String!): Extension
+    extensionContexts(contextIds: [ID!]!): [ExtensionContext!]
+    jira: JiraQuery
+    "The entity for the specified Jira project and repository relationship."
+    jiraProjectAndRepositoryRelationship(id: ID!): JiraProjectAndRepositoryRelationship
+    """
+
+    The connection entity for Jira project relationships for the specified repository, according to the specified
+    pagination, filtering and sorting.
+    """
+    jiraProjectRelationshipsForRepository(after: String, filter: JiraProjectAndRepositoryRelationshipFilter, first: Int = 20, id: ID!, sort: JiraProjectAndRepositoryRelationshipSort): JiraProjectAndRepositoryRelationshipConnection
+    """
+
+    Namespace for fields relating to issue releases in Jira.
+
+    A "release" in this context can refer to a code deployment or a feature flag change.
+
+    This field is currently in BETA.
+    """
+    jiraReleases: JiraReleases
+    "Get MarketplaceApp by appId"
+    marketplaceApp(appId: MarketplaceAppId!): MarketplaceApp
+    "Get MarketplacePartner by id."
+    marketplacePartner(id: MarketplacePartnerId!): MarketplacePartner
+    """
+
+    This returns information about the currently logged in user.  If there is no logged in user
+    then there really wont be much information to show.
+    """
+    me: AuthenticationContext!
+    """
+
+    API v1
+    Get activity for current user.
+    """
+    myActivities: MyActivity!
+    "Relay-style lookup-individual-node-by-global-ID."
+    node(id: ID!): Node
+    opsgenie: OpsgenieQuery
+    polarisAPIVersion: String
+    "THIS QUERY IS IN BETA and IS PRIVATE"
+    polarisAudit(filter: PolarisAuditFilter): [PolarisAuditRecord!]
+    "THIS QUERY IS IN BETA"
+    polarisProject(id: ID!): PolarisProject
+    "THIS QUERY IS IN BETA"
+    polarisView(id: ID!): PolarisView
+    """
+
+    The connection entity for repository relationships for the specified Jira project, according to the specified
+    pagination, filtering and sorting.
+    """
+    repositoryRelationshipsForJiraProject(after: String, filter: JiraProjectAndRepositoryRelationshipFilter, first: Int = 20, id: ID!, sort: JiraProjectAndRepositoryRelationshipSort): JiraProjectAndRepositoryRelationshipConnection
+    """
+
+    A Jira or Confluence cloud instance, such as `hello.atlassian.net` has a backing
+    cloud ID such as `0ee6b491-5425-4f19-a71e-2486784ad694`
+
+    This field allows you to look up the cloud IDs or host names of tenanted applications
+    such as Jira or Confluence.
+
+    You MUST provide a list of cloud IDs or a list of host names to look up but not both
+    otherwise an error will be returned
+    """
+    tenantContexts(cloudIds: [ID!], hostNames: [String!]): [TenantContext]
+    """
+
+    This field is useful for testing the graphql API.  In fact here at Atlassian we run synthetic checks
+    using this field ot help us ensure the graphql API is working as expected.
+    """
+    testing: Testing
+    """
+
+    Given an account id this will return user profile information with applied privacy controls of the caller.
+
+    Its important to remember that privacy controls are applied in terms of the caller.  A user with
+    a certain accountId may exist but the current caller may not have the right to view their details.
+    """
+    user(accountId: ID!): User
+    """
+
+    Given a list of account ids this will return user profile information with applied privacy controls of the caller.
+
+    Its important to remember that privacy controls are applied in terms of the caller.  A user with
+    a certain accountId may exist but the current caller may not have the right to view their details.
+
+    A maximum of 90 `accountIds` can be asked for at the one time.
+    """
+    users(accountIds: [ID!]!): [User!]!
+    "Gets all webtrigger URLs for an application in a specified context."
+    webTriggerUrlsByAppContext(appId: ID!, contextId: ID!, envId: ID!): [WebTriggerUrl!]
+}
+
+type RankColumnOutput implements MutationResponse {
+    columns: [Column!]
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+"Data for the reports overview page"
+type ReportsOverview {
+    metadata: [SoftwareReport]!
+}
+
+type ScopeSprintIssue {
+    "the estimate on the issue"
+    estimate: Float!
+    "issue key"
+    issueKey: String!
+    "issue description"
+    issueSummary: String!
+}
+
+"Generic implementation of MutationResponse for responses that don't need any extra data"
+type SetAppStoredEntityPayload implements Payload {
+    errors: [MutationError!]
+    success: Boolean!
+}
+
+type SetColumnLimitOutput implements MutationResponse {
+    columns: [Column!]
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+    updatedColumn: Column
+}
+
+type SetColumnNameOutput implements MutationResponse {
+    column: Column
+    message: String!
+    statusCode: Int!
+    success: Boolean!
+}
+
+type SetSwimlaneStrategyResponse implements MutationResponse {
+    message: String!
+    statusCode: Int!
+    strategy: SwimlaneStrategy!
+    success: Boolean!
+}
+
+type SoftwareBoard {
+    "List of the assignees of all cards currently displayed on the board"
+    assignees: [User]
+    "All issue children which are linked to the cards on the board"
+    cardChildren: [SoftwareCard]
+    "Configuration for showing media previews on cards"
+    cardMedia: CardMediaConfig
+    "[CardType]s which can be created in this column _outside of a swimlane_ (if any)"
+    cardTypes: [CardType]!
+    "All cards on the board, optionally filtered by ID"
+    cards(cardIds: [ID]): [SoftwareCard]
+    "The list of columns on the board"
+    columns: [Column]
+    "Whether any cards on the board are hidden due to board clearing logic (e.g. old cards in the done column are hidden)"
+    hasClearedCards: Boolean
+    id: ID
+    "Configuration for showing inline card create"
+    inlineCardCreate: InlineCardCreateConfig
+    "List of all labels on all cards current displayed on the board"
+    labels: [String]
+    "Name of the board"
+    name: String
+    "Temporarily needed to support legacy write API"
+    rankCustomFieldId: String
+    """
+
+    The current swimlane strategy for the board.  This is a board (not user) property.
+    All users of the board get the same strategy.
+    """
+    swimlaneStrategy: SwimlaneStrategy
+    """
+
+    Swimlanes on the board.  If swimlanes are set to "NONE" then this there will be a single swimlane object containing
+    all cards on the board.
+    """
+    swimlanes: [Swimlane]!
+    """
+
+    User Swimlanes on the board.  If swimlanes are set to "NONE" then this there will be a single swimlane object containing
+    all cards on the board.
+    """
+    userSwimlanes: [Swimlane]!
+}
+
+"A card on the board"
+type SoftwareCard {
+    assignee: User
+    "Child cards metadata"
+    childCardsMetadata: ChildCardsMetadata
+    "List of children IDs for a card"
+    childrenIds: [ID]
+    "Details of the media to show on this card, null if the card has no media"
+    coverMedia: CardCoverMedia
+    "Dev Status information for the card"
+    devStatus: DevStatus
+    "Whether or not this card is considered done"
+    done: Boolean
+    "Due date"
+    dueDate: String
+    "Estimate of size of a card"
+    estimate: Estimate
+    "IDs of the fix versions that this issue is related to"
+    fixVersionsIds: [ID!]!
+    "Whether or not this card is flagged"
+    flagged: Boolean
+    id: ID
+    key: String
+    labels: [String]
+    "ID of parent card"
+    parentId: ID
+    "Card priority"
+    priority: CardPriority
+    status: CardStatus
+    summary: String
+    type: CardType
+}
+
+"Represents a specific transition between statuses that a card can make."
+type SoftwareCardTransition {
+    "Card type that this transition applies to"
+    cardType: CardType!
+    "Identifier for the card's column in swimlane position, to be used as a target for card transitions"
+    id: ID
+    "true if global transition (anything status can move to this location)."
+    isGlobal: Boolean
+    "true if the transition is initial"
+    isInitial: Boolean
+    "Name of the transition, as set in the workflow editor"
+    name: String!
+    "statuses which can move to this location, null if global transition."
+    originStatus: CardStatus
+    "The status the card's issue will end up in after executing this CardTransition"
+    status: CardStatus
+}
+
+type SoftwareOperation {
+    icon: Icon
+    name: String
+    styleClass: String
+    tooltip: String
+    url: String
+}
+
+type SoftwareProject {
+    """
+
+    List of card types available in the project
+    When on the board, these will NOT include Epics or Subtasks, but when in boardScope they will
+    """
+    cardTypes: [CardType]
+    "Project id"
+    id: ID
+    "Project key"
+    key: String
+    "Project name"
+    name: String
+}
+
+type SoftwareReport {
+    "Which group this report should be shown in"
+    group: String!
+    id: ID!
+    "uri of the report's icon"
+    imageUri: String!
+    "if not applicable - localised text as to why"
+    inapplicableDescription: String
+    "if not applicable - localised text as to why"
+    inapplicableReason: String
+    "whether or not this report is applicable (is enabled for) this board"
+    isApplicable: Boolean!
+    "unique key identifying the report"
+    key: String!
+    "the name of the report in the user's language"
+    localisedDescription: String!
+    "the name of the report in the user's language"
+    localisedName: String!
+    """
+
+    suffix to apply to the reports url to load this report.
+    e.g. https://tenant.com/secure/RapidBoard.jspa?rapidView=*boardId*&view=reports&report=*urlName*
+    """
+    urlName: String!
+}
+
+"Node for querying any report page's data"
+type SoftwareReports {
+    "Data for the burndown chart report"
+    burndownChart: BurndownChart!
+    "Data for the cumulative flow diagram report"
+    cumulativeFlowDiagram: CumulativeFlowDiagram
+    "Data for the reports list overview"
+    overview: ReportsOverview
+}
+
+type Sprint {
+    cards(cardIds: [ID]): [SoftwareCard]!
+    "The number of days remaining"
+    daysRemaining: Int
+    "The end date of the sprint, in ISO 8601 format"
+    endDate: DateTime
+    "The sprint's goal, null if no goal is set"
+    goal: String
+    id: ID
+    "The sprint's name"
+    name: String
+    sprintState: SprintState!
+    "The start date of the sprint, in ISO 8601 format"
+    startDate: DateTime
+}
+
+type SprintEndData {
+    "list of all issues that are in the sprint with their estimates"
+    issueList: [ScopeSprintIssue]!
+    "scope remaining at the end of the sprint"
+    remainingEstimate: Float!
+    "timestamp of when sprint was completed"
+    timestamp: DateTime!
+}
+
+type SprintReportsFilters {
+    "Possible statistic that we want to track"
+    estimationStatistic: [SprintReportsEstimationStatisticType]!
+    "List of sprints to select from"
+    sprints: [Sprint]!
+}
+
+type SprintResponse implements MutationResponse {
+    message: String!
+    sprint: Sprint
+    statusCode: Int!
+    success: Boolean!
+}
+
+type SprintScopeChangeData {
+    "amount completed of the esimtation statistic"
+    completion: Float!
+    "estimation of the issue after this change"
+    estimate: Float
+    "type of event"
+    eventType: SprintScopeChangeEventType!
+    "the issue involved in the change"
+    issueKey: String!
+    "the issue description"
+    issueSummary: String!
+    "the previous completed amount before this change"
+    prevCompletion: Float!
+    "the previous estimation before this change"
+    prevEstimate: Float
+    "the previous remaining amount before this change"
+    prevRemaining: Float!
+    "the sprint scope before the change"
+    prevScope: Float!
+    "amount remaining of the estimation statistic"
+    remaining: Float!
+    "sprint scope after this change"
+    scope: Float!
+    "timestamp of change"
+    timestamp: DateTime!
+}
+
+type SprintStartData {
+    "list of all issues that are in the sprint with their estimates"
+    issueList: [ScopeSprintIssue]!
+    "scope estimate for start of sprint"
+    scopeEstimate: Float!
+    timestamp: DateTime!
+}
+
+type Swimlane {
+    "The set of card types allowed in the swimlane"
+    allowedCardTypes: [CardType!]
+    "The column data"
+    columnsInSwimlane: [ColumnInSwimlane]
+    "The icon to show for the swimlane"
+    iconUrl: String
+    """
+
+    The swimlane ID.  This will match the id of the object the swimlane is grouping by.  e.g. Epic's it will be the
+    epic's issue Id.  For assignees it will be the assignee's atlassian account id.   For swimlanes which do not
+    represent a object (e.g. "Issues without assignee's" swimlane) the value will be "0".
+    """
+    id: ID
+    "The name of the swimlane"
+    name: String
+}
+
+type TenantContext {
+    "This cloud id of a tenanted Jira or Confluence instance"
+    cloudId: ID
+    "This host name of a tenanted Jira or Confluence instance"
+    hostName: String
+}
+
+type Testing {
+    "Echos the message argument back to the caller"
+    echo(message: String): String
+    "This returns a hypothetical Movie by id for testing purposes"
+    movie(id: ID!): TestingMovie
+    "This returns a list of hypothetical Movies for testing purposes"
+    movies: [TestingMovie]
+    "Generates a new UUID"
+    uuid: String
+}
+
+type TestingCharacter {
+    id: ID!
+    name: String
+}
+
+type TestingMovie {
+    characters: [TestingCharacter]
+    id: ID!
+    renamedName: String
+}
+
+"""
+
+General Report Types
+====================
+"""
+type TimeSeriesPoint {
+    id: ID!
+    x: DateTime!
+    y: Int!
+}
+
+type UpdatePolarisTableVisualizationPayload {
+    errors: [MutationError!]
+    message: String!
+    node: PolarisView
+    statusCode: Int!
+    success: Boolean!
+}
+
+type UpdatePolarisViewPayload {
+    errors: [MutationError!]
+    node: PolarisView
+    success: Boolean!
+}
+
+type WebTriggerUrl implements Node {
+    appId: ID!
+    contextId: ID!
+    envId: ID!
+    extensionId: ID!
+    id: ID!
+    "Product extracted from the context id (e.g. jira, confulence). Only populated if context id is a valid cloud context."
+    product: String
+    "The tenant context for the cloud id. Only populated if context id is a valid cloud context."
+    tenantContext: TenantContext
+    triggerKey: String!
+    url: URL!
+}
+
+"""
+
+"
+The lifecycle status of the account
+"""
+enum AccountStatus {
+    "The account is an active account"
+    active
+    "The account has been closed"
+    closed
+    "The account is no longer an active account"
+    inactive
+}
+
+enum ActivitiesContainerType {
+    PROJECT
+    SITE
+    SPACE
+}
+
+enum ActivitiesFilterType {
+    AND
+    OR
+}
+
+enum ActivitiesObjectType {
+    BLOGPOST
+    ISSUE
+    PAGE
+}
+
+enum ActivityEventType {
+    ASSIGNED
+    COMMENTED
+    CREATED
+    EDITED
+    LIKED
+    PUBLISHED
+    TRANSITIONED
+    UNASSIGNED
+    UPDATED
+    VIEWED
+}
+
+enum ActivityObjectType {
+    BLOGPOST
+    COMMENT
+    ISSUE
+    PAGE
+    PROJECT
+    SITE
+    SPACE
+    TASK
+}
+
+enum ActivityProduct {
+    CONFLUENCE
+    JIRA
+    JIRA_BUSINESS
+    JIRA_OPS
+    JIRA_SERVICE_DESK
+    JIRA_SOFTWARE
+}
+
+"Only used for inside the schema to mark the context for generic types"
+enum ApiContext {
+    DEVOPS
+}
+
+enum AppDeploymentEventLogLevel {
+    ERROR
+    INFO
+    WARNING
+}
+
+enum AppDeploymentStatus {
+    DONE
+    FAILED
+    IN_PROGRESS
+}
+
+enum AppDeploymentStepStatus {
+    DONE
+    FAILED
+    STARTED
+}
+
+enum AppEnvironmentType {
+    DEVELOPMENT
+    PRODUCTION
+}
+
+enum AppStoredEntityCondition {
+    STARTS_WITH
+}
+
+"Hosting type where Atlassian product instance is installed."
+enum AtlassianProductHostingType {
+    CLOUD
+    DATA_CENTER
+    SERVER
+}
+
+enum BoardFeatureStatus {
+    COMING_SOON
+    DISABLED
+    ENABLED
+}
+
+enum BoardFeatureToggleStatus {
+    DISABLED
+    ENABLED
+}
+
+enum BuiltinPolarisIdeaField {
+    DESCRIPTION
+    IMPLEMENTATIONS
+    KEY
+    SUMMARY
+    SUPPORTS
+}
+
+"The state that a code deployment can be in (think of a deployment in Bitbucket Pipelines, CircleCI, etc)."
+enum DeploymentState {
+    CANCELLED
+    FAILED
+    IN_PROGRESS
+    PENDING
+    ROLLED_BACK
+    SUCCESSFUL
+    UNKNOWN
+}
+
+"""
+
+The types of environments that a code change can be released to.
+
+The release may be via a code deployment or via a feature flag change.
+"""
+enum DevOpsEnvironmentCategory {
+    DEVELOPMENT
+    PRODUCTION
+    STAGING
+    TESTING
+    UNMAPPED
+}
+
+enum DevOpsMetricsCycleTimePhase {
+    "Development phase from initial code commit to deployed code."
+    COMMIT_TO_DEPLOYMENT
+    "Development phase from initial code commit to opened pull request."
+    COMMIT_TO_PR
+}
+
+"Unit for specified resolution value."
+enum DevOpsMetricsResolutionUnit {
+    DAY
+    HOUR
+    WEEK
+}
+
+enum DevOpsRelationshipCertainty {
+    "The relationship was created by a user."
+    EXPLICIT
+    "The relationship was inferred by a system."
+    IMPLICIT
+}
+
+enum DevOpsRelationshipCertaintyFilter {
+    "Return all relationships."
+    ALL
+    "Return only relationships created by a user."
+    EXPLICIT
+    "Return only relationships inferred by a system."
+    IMPLICIT
+}
+
+enum DevOpsRepositoryHostingProviderFilter {
+    ALL
+    BITBUCKET_CLOUD
+    THIRD_PARTY
+}
+
+enum DevStatusActivity {
+    BRANCH_OPEN
+    COMMIT
+    PR_DECLINED
+    PR_MERGED
+    PR_OPEN
+}
+
+"Which type of trigger"
+enum FunctionTriggerType {
+    FRONTEND
+    MANUAL
+    PRODUCT
+    WEB
+}
+
+enum IssueDevOpsCommitChangeType {
+    ADDED
+    COPIED
+    DELETED
+    MODIFY
+    MOVED
+    UNKNOWN
+}
+
+enum IssueDevOpsDeploymentEnvironmentType {
+    DEVELOPMENT
+    PRODUCTION
+    STAGING
+    TESTING
+    UNMAPPED
+}
+
+enum IssueDevOpsDeploymentState {
+    CANCELLED
+    FAILED
+    IN_PROGRESS
+    PENDING
+    ROLLED_BACK
+    SUCCESSFUL
+    UNKNOWN
+}
+
+enum IssueDevOpsPullRequestStatus {
+    DECLINED
+    MERGED
+    OPEN
+}
+
+"#################### Enums #####################"
+enum JiraProjectAndRepositoryRelationshipSortBy {
+    LAST_INFERRED_AT
+}
+
+enum JiraProjectSortField {
+    "sorts by category"
+    CATEGORY
+    "sorts by project key"
+    KEY
+    "sorts by lead"
+    LEAD
+    "sorts by project name"
+    NAME
+}
+
+"Jira Project types"
+enum JiraProjectType {
+    "A business project"
+    BUSINESS
+    "A service desk project"
+    SERVICE_DESK
+    "A software project"
+    SOFTWARE
+}
+
+"""
+
+Used for specifying whether or not issues that haven't been released should be included
+in the results.
+"""
+enum JiraReleasesIssueReleaseStatusFilter {
+    "Only issues that have been released (to any environment) will be included in the results."
+    RELEASED
+    """
+
+    Issues that have been released will be returned first, followed by issues that haven't
+    yet been released.
+    """
+    RELEASED_AND_UNRELEASED
+    "Only issues that have *not* been released (to any environment) will be included in the results."
+    UNRELEASED
+}
+
+"Support type available for an app"
+enum MarketplaceAppSupportType {
+    ATLASSIAN
+    PARTNER
+}
+
+"Visibility of the Marketplace app's version"
+enum MarketplaceAppVersionVisibility {
+    PRIVATE
+    PUBLIC
+}
+
+"Status of appâs listing in Marketplace."
+enum MarketplaceListingStatus {
+    PRIVATE
+    PUBLIC
+    READY_TO_LAUNCH
+    REJECTED
+    SUBMITTED
+}
+
+"Tells whether support is on holiday only one time or if it repeats annually."
+enum MarketplacePartnerSupportHolidayFrequency {
+    ANNUAL
+    ONE_TIME
+}
+
+"Tells if the Marketplace partner is an Atlassianâs internal one."
+enum MarketplacePartnerType {
+    ATLASSIAN_INTERNAL
+}
+
+enum PolarisSortOrder {
+    ASC
+    DESC
+}
+
+enum PolarisVisualizationType {
+    BOARD
+    TABLE
+    TWOXTWO
+}
+
+enum Product {
+    Confluence
+    Jira
+}
+
+enum SoftwareCardsDestinationEnum {
+    BACKLOG
+    EXISTING_SPRINT
+    NEW_SPRINT
+}
+
+"The sort direction of the collection"
+enum SortDirection {
+    "Sort in ascending order"
+    ASC
+    "Sort in descending order"
+    DESC
+}
+
+enum SprintReportsEstimationStatisticType {
+    ISSUE_COUNT
+    STORY_POINTS
+}
+
+enum SprintState {
+    ACTIVE
+    CLOSED
+    FUTURE
+}
+
+"How to group cards on the board into swimlanes"
+enum SwimlaneStrategy {
+    ASSIGNEE
+    ISSUECHILDREN
+    ISSUEPARENT
+    NONE
+}
+
+input ActivitiesArguments {
+    "set of Atlassian account IDs"
+    accountIds: [ID!]
+    "set of Cloud IDs"
+    cloudIds: [ID!]
+    "set of Container IDs"
+    containerIds: [ID!]
+    "The creation time of the earliest events to be included in the result"
+    earliestStart: DateTime
+    "set of Event Types"
+    eventTypes: [ActivityEventType!]
+    "The creation time of the latest events to be included in the result"
+    latestStart: DateTime
+    "set of Object Types"
+    objectTypes: [ActivitiesObjectType!]
+    "set of products"
+    products: [ActivityProduct!]
+    "arbitrary transition filters"
+    transitions: [ActivityTransition!]
+}
+
+input ActivitiesFilter {
+    arguments: ActivitiesArguments
+    "defines relationship in-between filter arguments (AND/OR)"
+    type: ActivitiesFilterType
+}
+
+input ActivityFilter {
+    "set of Atlassian account IDs"
+    aaIDs: [ID]
+    "set of Cloud IDs"
+    cloudIDs: [ID]
+    "set of Container IDs"
+    containerIDs: [ID]
+    """
+
+    The creation time of the earliest events to be included in the result
+    RFC-3339 formatted timestamp
+    """
+    earliestStart: String
+    "set of Event Types"
+    eventTypes: [ActivityEventType]
+    """
+
+    deprecated (use earliestStart instead)
+    events created on or after this date. eq. 2019-02-15T05:47:32.589Z
+    """
+    from: String
+    """
+
+    The creation time of the latest events to be included in the result
+    RFC-3339 formatted timestamp
+    """
+    latestStart: String
+    "set of Object Types"
+    objectTypes: [ActivityObjectType]
+    "set of products"
+    products: [ActivityProduct]
+    """
+
+    deprecated (use latestStart instead)
+    events created on or before this date. eq. 2019-07-05T07:23:50.000Z
+    """
+    to: String
+    "arbitrary transition filters"
+    transitions: [ActivityTransition]
+}
+
+"""
+
+Represents arbitrary transition,
+e.g. in case of TRANSITIONED event type it could be `from: "inprogress" to: "done"`.
+"""
+input ActivityTransition {
+    from: String
+    to: String
+}
+
+input AddPolarisColumnInput {
+    """
+
+    The column to insert this column before.  If not specified,
+    the new column is added to the right of all columns.
+    """
+    before: ID
+    "The id of the field to add"
+    field: ID!
+    "The format to use for the rendering the field's data"
+    format: String
+    """
+
+    An override for the column heading; if not specified,
+    the field label should be used.
+    """
+    heading: String
+    "The width to configure on the column"
+    width: Int
+}
+
+"Used to uniquely identify an environment, when being used as an input."
+input AppEnvironmentInput {
+    appId: ID!
+    key: String!
+}
+
+"The input needed to create or update an environment variable."
+input AppEnvironmentVariableInput {
+    "Whether or not to encrypt (default=false)"
+    encrypt: Boolean
+    "The key of the environment variable"
+    key: String!
+    "The value of the environment variable"
+    value: String!
+}
+
+"Input payload for the app environment install mutation"
+input AppInstallationInput {
+    "An unique Id representing the app"
+    appId: ID!
+    "The key of the app's environment to be used for installation"
+    environmentKey: String!
+    "A unique Id representing the context into which the app is being installed"
+    installationContext: ID!
+}
+
+"Input payload for the app environment upgrade mutation"
+input AppInstallationUpgradeInput {
+    "A unique Id representing the app"
+    appId: ID!
+    "The key of the app's environment to be used for installation upgrade"
+    environmentKey: String!
+    "A unique Id representing the context into which the app is being upgraded"
+    installationContext: ID!
+}
+
+"""
+
+The identifier for this entity
+
+where condition to filter
+"""
+input AppStoredEntityFilter {
+    condition: AppStoredEntityCondition!
+    "Condition filter to be provided when querying for Entities."
+    field: String!
+    value: AppStoredEntityFieldValue!
+}
+
+"Input payload for the app environment uninstall mutation"
+input AppUninstallationInput {
+    "A unique Id representing the app"
+    appId: ID!
+    "The key of the app's environment to be used for installation"
+    environmentKey: String!
+    "A unique Id representing the installationId"
+    installationId: ID!
+}
+
+"Payload to invoke an AUX Effect"
+input AuxEffectsInvocationPayload {
+    "Configuration arguments for the instance of the AUX extension"
+    config: JSON
+    "Environment information about where the effects are dispatched from"
+    context: JSON!
+    "The effects to action inside the function"
+    effects: [JSON!]!
+    "The current state of the AUX extension"
+    state: JSON!
+}
+
+input ChangePolarisIdeaFieldValue {
+    fieldId: Int!
+    labelAddValues: [String!]
+    labelRemoveValues: [String!]
+    labelSetValues: [String!]
+    numberValue: Float
+    stringValue: String
+}
+
+input ChangePolarisIdeaInput {
+    description: String
+    fields: [ChangePolarisIdeaFieldValue!]
+    idea: ID!
+    summary: String
+    unread: Boolean
+}
+
+"##### Input #######"
+input ChangePolarisIdeaRankInput {
+    """
+
+    The ARI of the idea which we are ranking these issues AFTER.  In other
+    words, this is the ARI of the idea which will come before the subject ideas.
+    One of before or after must be specified.
+    """
+    after: ID
+    """
+
+    The ARI of the idea which we are ranking these issues BEFORE.  In other
+    words, this is the ARI of the idea which will come after the subject ideas.
+    """
+    before: ID
+    "The ARIs of the subject ideas whose ranks are to be changed"
+    ideas: [ID!]!
+    "The ARI of the project in which we are changing ranks"
+    project: ID!
+}
+
+"Complete sprint"
+input CompleteSprintInput {
+    boardId: ID!
+    incompleteCardsDestination: SoftwareCardsDestination!
+    sprintId: ID!
+}
+
+input CreateAppDeploymentInput {
+    appId: ID!
+    artifactUrl: URL!
+    environmentKey: String!
+    hostedResourceUploadId: ID
+}
+
+input CreateAppDeploymentUrlInput {
+    appId: ID!
+}
+
+input CreateAppInput {
+    description: String
+    name: String!
+}
+
+"""
+
+Establish a tunnel for a specific environment of an app. This will redirect
+all function calls to a separate tunnel URL. This URL must implement the same
+invocation contract that is used elsewhere in Xen.
+"""
+input CreateAppTunnelInput {
+    "The app to setup a tunnel for"
+    appId: ID!
+    "The environment key"
+    environmentKey: String!
+    "Should existing tunnels be overwritten"
+    force: Boolean
+    "The URL to tunnel calls to"
+    tunnelUrl: URL!
+}
+
+"""
+
+## Mutations
+## Column Mutations ###
+"""
+input CreateColumnInput {
+    boardId: ID!
+    columnName: String!
+}
+
+input CreateContainerTokenInput {
+    appId: ID!
+}
+
+input CreateHostedResourceUploadUrlInput {
+    appId: ID!
+    environmentKey: String!
+    resourceKeys: [String!]!
+}
+
+input CreatePolarisIdeaInput {
+    ideaType: ID
+    inProject: ID!
+    summary: String
+}
+
+input CreatePolarisProjectInput {
+    key: String!
+    name: String!
+    tenant: ID!
+}
+
+input CreatePolarisViewInput {
+    container: ID!
+    " the type of viz to create"
+    copyView: ID
+    " view to copy configuration from"
+    update: UpdatePolarisViewInput
+    visualizationType: PolarisVisualizationType
+}
+
+"Create sprint"
+input CreateSprintInput {
+    boardId: ID!
+}
+
+"Time ranges of invocation date."
+input DateSearchInput {
+    """
+
+    The start time of the earliest invocation to include in the results.
+    If null, search results will only be limited by retention limits.
+
+    RFC-3339 formatted timestamp.
+    """
+    earliestStart: String
+    """
+
+    The start time of the latest invocation to include in the results.
+    If null, will include most recent invocations.
+
+    RFC-3339 formatted timestamp.
+    """
+    latestStart: String
+}
+
+input DeleteAppEnvironmentVariableInput {
+    environment: AppEnvironmentInput!
+    "The key of the environment variable to delete"
+    key: String!
+}
+
+input DeleteAppInput {
+    appId: ID!
+}
+
+input DeleteAppStoredEntityMutationInput {
+    "The ARI to store this entity within"
+    contextAri: ID!
+    """
+
+    The identifier for the entity
+
+    Keys must be between 1-100 characters long and must match the following pattern /^[a-zA-Z0-9:._\s-]+$/
+    """
+    key: ID!
+}
+
+input DeleteAppTunnelInput {
+    "The app to setup a tunnel for"
+    appId: ID!
+    "The environment key"
+    environmentKey: String!
+}
+
+input DeleteColumnInput {
+    boardId: ID!
+    columnId: ID!
+}
+
+"Delete sprint"
+input DeleteSprintInput {
+    boardId: ID!
+    sprintId: ID!
+}
+
+"No results will be returned unless an association type is specified. Currently only 'jiraProjectIds' association type is supported."
+input DevOpsMetricsFilterInput {
+    "The identifier that indicates which cloud instance this data is to be fetched for."
+    cloudId: ID!
+    "The end dateTime for overall time interval to return results for. The interval is exclusive of this value."
+    endAtExclusive: DateTime!
+    "List of Jira projectIds in the given 'cloudId' to fetch metrics for. Max limit of 10."
+    jiraProjectIds: [ID!]
+    """
+
+    The size of time interval in which to rollup data points in. Default is 1 day.
+    E.g. Count of data over 2 weeks with 1 day resolution means rollup is number of datapoints per day over 2 weeks.
+    """
+    resolution: DevOpsMetricsResolutionInput = {value : 1, unit : DAY}
+    "The start dateTime for overall time interval to return results for. The interval is inclusive of this value."
+    startFromInclusive: DateTime!
+}
+
+input DevOpsMetricsResolutionInput {
+    "Input unit for specified resolution value."
+    unit: DevOpsMetricsResolutionUnit!
+    "Input value for resolution specified."
+    value: Int!
+}
+
+"Edit sprint"
+input EditSprintInput {
+    boardId: ID!
+    endDate: DateTime
+    goal: String
+    name: String
+    sprintId: ID!
+    startDate: DateTime
+}
+
+"""
+
+Details about an extension.
+
+This information is used to look up the extension within CaaS so that the
+correct function can be resolved.
+
+This will eventually be superseded by an Id.
+"""
+input ExtensionDetailsInput {
+    "The definition identifier as provided by CaaS"
+    definitionId: ID!
+    "The extension key as provided by CaaS"
+    extensionKey: String!
+}
+
+input ExternalAuthCredentialsInput {
+    "The oAuth Client Id"
+    clientId: ID!
+    "The shared secret"
+    clientSecret: String!
+}
+
+"Input payload for the invoke aux mutation"
+input InvokeAuxEffectsInput {
+    """
+
+    The list of applicable context Ids
+    Context Ids are used within the ecosystem platform to identify product
+    controlled areas into which apps can be installed. Host products should
+    determine how this list of contexts is constructed.
+
+    *Important:* this should start with the most specific context as the
+    most specific extension will be the selected extension.
+    """
+    contextIds: [ID!]!
+    "An identifier for an alternative entry point function to invoke"
+    entryPoint: String
+    """
+
+    Information needed to look up an extension
+
+    Note: Either `extensionDetails` or `extensionId` must be provided
+    """
+    extensionDetails: ExtensionDetailsInput
+    """
+
+    An identifier for the extension to invoke
+
+    Note: Either `extensionDetails` or `extensionId` must be provided
+    """
+    extensionId: ID
+    "The payload to invoke an AUX Effect"
+    payload: AuxEffectsInvocationPayload!
+}
+
+"Input payload for the invoke mutation"
+input InvokeExtensionInput {
+    """
+
+    The list of applicable context Ids
+    Context Ids are used within the ecosystem platform to identify product
+    controlled areas into which apps can be installed. Host products should
+    determine how this list of contexts is constructed.
+
+    *Important:* this should start with the most specific context as the
+    most specific extension will be the selected extension.
+    """
+    contextIds: [ID!]!
+    "An identifier for an alternative entry point function to invoke"
+    entryPoint: String
+    """
+
+    Information needed to look up an extension
+
+    Note: Either `extensionDetails` or `extensionId` must be provided
+    """
+    extensionDetails: ExtensionDetailsInput
+    """
+
+    An identifier for the extension to invoke
+
+    Note: Either `extensionDetails` or `extensionId` must be provided
+    """
+    extensionId: ID
+    "The payload to send as part of the invocation"
+    payload: JSON!
+}
+
+"#################### Filtering and Sorting Inputs #####################"
+input JiraProjectAndRepositoryRelationshipFilter {
+    "Include only relationships with the specified certainty"
+    certainty: DevOpsRelationshipCertaintyFilter! = EXPLICIT
+    "Include only relationships with the specified repository hosting provider type"
+    hostingProvider: DevOpsRepositoryHostingProviderFilter! = ALL
+    """
+
+    Include only relationships with all of the specified property keys.
+    If this is omitted, no filtering by 'all property keys' is applied.
+    """
+    withAllPropertyKeys: [String!]
+}
+
+input JiraProjectAndRepositoryRelationshipSort {
+    "The field to apply sorting on"
+    by: JiraProjectAndRepositoryRelationshipSortBy!
+    "The direction of sorting"
+    order: SortDirection! = ASC
+}
+
+input JiraProjectFilterInput {
+    " Filter the results using a literal string. Projects witha matching key or name are returned (case insensitive)."
+    keyword: String
+    "the project category that can be used to filter list of projects"
+    projectCategoryId: ID
+    "the sort criteria that is used while filtering the projects"
+    sortBy: JiraProjectSortInput
+    "the project types that can be used to filter list of projects"
+    types: [JiraProjectType!]
+}
+
+input JiraProjectSortInput {
+    order: SortDirection
+    sortBy: JiraProjectSortField
+}
+
+input JiraReleasesDeploymentFilter {
+    "Only deployments in these environment types will be returned."
+    environmentCategories: [DevOpsEnvironmentCategory!]
+    "Only deployments in these environments will be returned."
+    environmentDisplayNames: [String!]
+    "Only deployments associated with these issues will be returned."
+    issueIds: [ID!]!
+    "Only deployments in this time window will be returned."
+    timeWindow: JiraReleasesTimeWindowInput!
+}
+
+input JiraReleasesEpicFilter {
+    "Only epics in this project will be returned."
+    projectId: ID!
+    "Only epics matching this text filter will be returned."
+    text: String
+}
+
+input JiraReleasesIssueFilter {
+    "Only issues assigned to these users will be returned."
+    assignees: [ID!]
+    "Only issues that have been released in these environment *types* will be returned."
+    environmentCategories: [DevOpsEnvironmentCategory]
+    "Only issues that have been released in these environments will be returned."
+    environmentDisplayNames: [String!]
+    """
+
+    Only issues in these epics will be returned.
+
+    Note:
+    * If a null ID is included in the list, issues not in epics will be included in the results.
+    * If a subtask's parent issue is in one of the epics, the subtask will also be returned.
+    """
+    epicIds: [ID]
+    "Only issues in this project will be returned."
+    projectId: ID!
+    "Determines whether that haven't been released should be included in the results."
+    releaseStatusFilter: JiraReleasesIssueReleaseStatusFilter! = RELEASED
+    "Only issues matching this text filter will be returned (will match against all issue fields)."
+    text: String
+    """
+
+    Only issues that have been released within this time window will be returned.
+
+    Note: Issues that have not been released within the time window will still be returned
+    if the `includeIssuesWithoutReleases` argument is `true`.
+    """
+    timeWindow: JiraReleasesTimeWindowInput!
+}
+
+input JiraReleasesTimeWindowInput {
+    after: DateTime!
+    before: DateTime!
+}
+
+"The input for choosing invocations of interest."
+input LogQueryInput {
+    """
+
+    Limits the search to a particular version of the app.
+    Optional: if empty will search all versions of the app
+    """
+    appVersion: String
+    """
+
+    Limits the search to a particular date range.
+
+    Note: Logs may have a TTL on them so older logs may not be available
+    despite search parameters.
+    """
+    dates: DateSearchInput
+    """
+
+    Limits the search to a particular function in the app.
+    Optional: if empty will search all functions.
+    """
+    functionKey: String
+    """
+
+    Specify which installations you want to search.
+    Optional: if empty will search all installations user has access to.
+    """
+    installationContexts: [ID!]
+}
+
+"Move sprint down"
+input MoveSprintDownInput {
+    boardId: ID!
+    sprintId: ID!
+}
+
+"Move sprint up"
+input MoveSprintUpInput {
+    boardId: ID!
+    sprintId: ID!
+}
+
+input PolarisAuditFilter {
+    action: String
+    since: String
+    user: String
+}
+
+input PolarisFilterInput {
+    jql: String
+}
+
+input PolarisGroupValueInput {
+    " a label value (which has no identity besides its string value)"
+    id: String
+    label: String
+}
+
+input PolarisSortFieldInput {
+    field: ID!
+    order: PolarisSortOrder
+}
+
+input RankColumnInput {
+    boardId: ID!
+    columnId: ID!
+    position: Int!
+}
+
+input RemovePolarisColumnInput {
+    "The column position to be removed"
+    column: ID!
+}
+
+input ScanPolarisProjectInput {
+    project: ID!
+    refresh: Boolean
+}
+
+input SetAppEnvironmentVariableInput {
+    environment: AppEnvironmentInput!
+    "The input identifying the environment variable to insert"
+    environmentVariable: AppEnvironmentVariableInput!
+}
+
+input SetAppStoredEntityMutationInput {
+    "The ARI to store this entity within"
+    contextAri: ID!
+    """
+
+    The identifier for the entity
+
+    Keys must be between 1-100 characters long and must match the following pattern /^[a-zA-Z0-9:._\s-]+$/
+    """
+    key: ID!
+    """
+
+    Entities may be up to 2000 bytes long. Note that size within ESS may differ from
+    the size of the entity sent to this service. The entity size is counted within this service.
+    """
+    value: JSON!
+}
+
+input SetColumnLimitInput {
+    boardId: ID!
+    columnId: ID!
+    limit: Int
+}
+
+input SetColumnNameInput {
+    boardId: ID!
+    columnId: ID!
+    columnName: String!
+}
+
+input SetExternalAuthCredentialsInput {
+    "An object representing the credentials to set"
+    credentials: ExternalAuthCredentialsInput!
+    "The input identifying what environment to set credentials for"
+    environment: AppEnvironmentInput!
+    "The key for the service we're setting the credentials for (must already exist via previous deployment)"
+    serviceKey: String!
+}
+
+"Swimlane Mutations"
+input SetSwimlaneStrategyInput {
+    boardId: ID!
+    strategy: SwimlaneStrategy!
+}
+
+input SoftwareCardsDestination {
+    destination: SoftwareCardsDestinationEnum
+    sprintId: ID
+}
+
+"Start sprint"
+input StartSprintInput {
+    boardId: ID!
+    endDate: DateTime!
+    goal: String
+    name: String!
+    sprintId: ID!
+    startDate: DateTime!
+}
+
+input UpdatePolarisTableVisualizationInput {
+    addColumns: [AddPolarisColumnInput!]
+    name: String
+    removeColumns: [RemovePolarisColumnInput!]
+    update: UpdatePolarisViewInput
+    view: ID!
+}
+
+input UpdatePolarisViewInput {
+    " just the user filtering part of the JQL"
+    fields: [ID!]
+    " the table columns list of fields (table viz) or fields to show"
+    groupBy: ID
+    " what field to group by (board viz)"
+    groupValues: [PolarisGroupValueInput]
+    " the name of the view"
+    jql: String
+    " view to update, if this is an UPDATE operation"
+    name: String
+    " the field controlling the ordinate (y coordinate)"
+    sort: [PolarisSortFieldInput]
+    " the JQL (sets filter and sorting)"
+    userJql: String
+    view: ID
+    " what are the (ordered) grouping values"
+    x: ID
+    " the field controlling the abcissa (x coordinate)"
+    y: ID
+}
+
+input UserOnboardingInput {
+    "Input list of AAIDs that should be on-boarded to the closed beta"
+    aaids: [ID!]!
+}
+
+input WebTriggerUrlInput {
+    "Id of the application"
+    appId: ID!
+    """
+
+    context in which function should run, usually a site context.
+    E.g.: ari:cloud:jira::site/{siteId}
+    """
+    contextId: ID!
+    "Environment id of the application"
+    envId: ID!
+    "Web trigger module key"
+    triggerKey: String!
+}
+
+
+"AppStoredEntityFieldValue"
+scalar AppStoredEntityFieldValue
+
+"Supported colors in the Palette"
+scalar CardPaletteColor
+
+"CardTypeHierarchyLevelType"
+scalar CardTypeHierarchyLevelType
+
+"DateTime type"
+scalar DateTime
+
+"A JSON scalar"
+scalar JSON
+
+"Long type"
+scalar Long
+
+"A positive long number used to uniquely identify an app in marketplace."
+scalar MarketplaceAppId
+
+"Unique id of a Marketplace Partner. Accepts positive integers only"
+scalar MarketplacePartnerId
+
+"SoftwareBoardFeatureKey"
+scalar SoftwareBoardFeatureKey
+
+"SoftwareBoardPermission"
+scalar SoftwareBoardPermission
+
+"SprintScopeChangeEventType"
+scalar SprintScopeChangeEventType
+
+"A URL Scala type"
+scalar URL

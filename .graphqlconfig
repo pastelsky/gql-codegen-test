@@ -1,0 +1,12 @@
+{
+  "name": "Untitled GraphQL Schema",
+  "schemaPath": "./schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": "https://api-private.stg.atlassian.com/graphql/branch-amkt-23692/graphql",
+        "introspect": true
+      }
+    }
+  }
+}

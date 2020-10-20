@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from 'src/App2/App';
 import * as serviceWorker from './serviceWorker';
+import gql from 'graphql-tag'
 
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -11,13 +12,27 @@ import { ApolloProvider } from '@apollo/react-hooks';
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-  uri: 'https://graphql-pokemon.now.sh/'
+  uri: 'https://api.spacex.land/graphql/'
 })
 
 const client = new ApolloClient({
   cache,
   link
 })
+
+const query = gql`
+  query Full($appId: MarketplaceAppId!) {
+      marketplaceApp(appId: $appId) {
+          ...tags
+      },
+
+      ${App.fragments.app}
+  }
+`
+
+function Main() {
+
+}
 
 
 ReactDOM.render(<ApolloProvider client={client}><App /></ApolloProvider>, document.getElementById('root'));

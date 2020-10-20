@@ -1,0 +1,18 @@
+overwrite: true
+schema: "https://api-private.stg.atlassian.com/graphql/branch-amkt-23692/graphql"
+documents: "src/**/*.js"
+generates:
+  src/types.js:
+    plugins:
+      - flow
+  src/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.js
+      baseTypesPath: types.js
+    plugins:
+      - flow-operations
+    config:
+      preResolveTypes: true
+      onlyOperationTypes: true
+      skipTypeNameForRoot: true
